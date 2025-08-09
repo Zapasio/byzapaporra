@@ -4,12 +4,12 @@ import { getFirestore, collection, doc, onSnapshot, setDoc, addDoc, updateDoc } 
 
 // --- TUS CLAVES DE FIREBASE ---
 const firebaseConfig = {
-  apiKey: "AIzaSyBrb39G4VXHQU3C_R3TPOHKLvT7FkadjMM",
-  authDomain: "byzapaporra.firebaseapp.com",
-  projectId: "byzapaporra",
-  storageBucket: "byzapaporra.appspot.com",
-  messagingSenderId: "399956071476",
-  appId: "1:399956071476:web:4431f0835c444234b92661"
+  apiKey: import.meta.env.VITE_API_KEY,
+  authDomain: import.meta.env.VITE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_APP_ID
 };
 
 // Initialize Firebase and Firestore
