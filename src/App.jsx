@@ -1,6 +1,15 @@
 import React, { useState, useMemo, useEffect } from 'react';
+// Importamos TODO lo necesario de Firebase, incluyendo Autenticación
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, doc, onSnapshot, setDoc, addDoc, updateDoc } from "firebase/firestore";
+import { getFirestore, collection, doc, onSnapshot, setDoc, addDoc, updateDoc, getDoc } from "firebase/firestore";
+import { 
+    getAuth, 
+    createUserWithEmailAndPassword, 
+    signInWithEmailAndPassword, 
+    signOut, 
+    onAuthStateChanged,
+    sendPasswordResetEmail
+} from "firebase/auth";
 
 // --- TUS CLAVES DE FIREBASE ---
 const firebaseConfig = {
@@ -12,9 +21,10 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_APP_ID
 };
 
-// Initialize Firebase and Firestore
+// Initialize Firebase services
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth(app);
 
 // --- Iconos SVG ---
 const TrophyIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 24 24" fill="currentColor"><path d="M20.2,2H3.8C3.3,2,3,2.3,3,2.8v13.4c0,0.5,0.3,0.8,0.8,0.8h3.4c-0.1,0.3-0.2,0.6-0.2,0.9c0,1.9,1.6,3.5,3.5,3.5s3.5-1.6,3.5-3.5c0-0.3-0.1-0.6-0.2-0.9h3.4c0.5,0,0.8-0.3,0.8-0.8V2.8C21,2.3,20.7,2,20.2,2z M10.5,20.5c-1.4,0-2.5-1.1-2.5-2.5s1.1-2.5,2.5-2.5s2.5,1.1,2.5,2.5S11.9,20.5,10.5,20.5z M19,15H5V4h14V15z"/><path d="M6,5h2v5H6V5z M16,5h-2v5h2V5z"/></svg>;
@@ -31,39 +41,104 @@ const JORNADAS_DATA = { 1: { matches: [ { id: 'J1-M1', home: 'Athletic Club', aw
 
 // --- COMPONENTES DE UI con DISEÑO GLASSMORPHISM ---
 
-const Header = () => (
-    <header className="p-4">
-        <div className="container mx-auto flex items-center justify-center gap-3">
-            <h1 className="text-3xl md:text-4xl font-black gold-gradient bg-clip-text text-transparent tracking-wide">
-                PORRA BYZAPA
-            </h1>
-        </div>
-    </header>
-);
-
+const Header = () => ( <header className="p-4"><div className="container mx-auto flex items-center justify-center gap-3"><h1 className="text-3xl md:text-4xl font-black gold-gradient bg-clip-text text-transparent tracking-wide">PORRA BYZAPA</h1></div></header> );
 const Footer = () => <footer className="text-center p-6 mt-auto"><p className="text-sm text-gray-500">Creado por ByZapa</p></footer>;
-
 const Modal = ({ title, message, onClose }) => <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4"><div className="glass-effect rounded-xl p-8 w-full max-w-md text-center"><h3 className="text-2xl font-bold mb-4 gold-gradient bg-clip-text text-transparent">{title}</h3><p className="text-white mb-6">{message}</p><button onClick={onClose} className="gold-gradient text-black font-bold py-2 px-8 rounded-full hover:scale-105 transition-transform">Entendido</button></div></div>;
 
-const WelcomeScreen = ({ onEnter, players, selectedPlayerId, setSelectedPlayerId }) => (
-    <div className="text-center p-4 max-w-2xl mx-auto animate-fade-in flex flex-col items-center justify-center min-h-[70vh]">
-        <h2 className="text-6xl font-black gold-gradient bg-clip-text text-transparent mb-4">Bienvenido</h2>
-        <p className="text-gray-400 mb-8 text-lg">Selecciona tu perfil para empezar a jugar.</p>
-        <div className="glass-effect rounded-xl p-8 w-full">
-            <h3 className="text-2xl font-semibold text-white mb-4">¿Quién eres?</h3>
-            <select value={selectedPlayerId} onChange={(e) => setSelectedPlayerId(e.target.value)} className="w-full p-3 bg-gray-900/80 border border-gray-700 rounded-lg text-white text-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 mb-6">
-                <option value="" className="bg-gray-800">-- Selecciona tu nombre --</option>
-                {players.map(player => (<option key={player.id} value={player.id} className="bg-gray-800">{player.name}</option>))}
-            </select>
-            <button onClick={onEnter} disabled={!selectedPlayerId} className="w-full gold-gradient text-black font-bold py-3 px-8 rounded-full shadow-lg shadow-yellow-500/20 transform hover:scale-105 transition-all duration-300 disabled:bg-gray-700 disabled:text-gray-400 disabled:cursor-not-allowed disabled:shadow-none">Entrar al Juego</button>
-        </div>
-    </div>
-);
+const AuthScreen = ({ onShowModal }) => {
+    const [isLogin, setIsLogin] = useState(true);
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [name, setName] = useState('');
+    const [error, setError] = useState('');
+    const [resetEmail, setResetEmail] = useState('');
+    const [showPasswordReset, setShowPasswordReset] = useState(false);
 
-const PlayerDashboard = ({ loggedInPlayer, gameState, onShowModal }) => {
+    const handleAuth = async (e) => {
+        e.preventDefault();
+        setError('');
+        try {
+            if (isLogin) {
+                await signInWithEmailAndPassword(auth, email, password);
+            } else {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                // Creamos el documento del jugador en Firestore
+                await setDoc(doc(db, "players", userCredential.user.uid), {
+                    name: name,
+                    email: email,
+                    status: 'activo',
+                    picks: [],
+                    jornadaEliminado: null,
+                    role: 'player'
+                });
+            }
+        } catch (err) {
+            setError(err.message);
+            onShowModal("Error de Autenticación", err.message);
+        }
+    };
+    
+    const handlePasswordReset = async () => {
+        if (!resetEmail) {
+            onShowModal("Error", "Por favor, introduce tu email para recuperar la contraseña.");
+            return;
+        }
+        try {
+            await sendPasswordResetEmail(auth, resetEmail);
+            onShowModal("Correo Enviado", "Se ha enviado un enlace a tu email para recuperar tu contraseña.");
+            setShowPasswordReset(false);
+            setResetEmail('');
+        } catch (err) {
+            onShowModal("Error", err.message);
+        }
+    };
+
+    if (showPasswordReset) {
+        return (
+            <div className="text-center p-4 max-w-md mx-auto animate-fade-in flex flex-col items-center justify-center min-h-[70vh]">
+                <div className="glass-effect rounded-xl p-8 w-full">
+                    <h3 className="text-2xl font-semibold text-white mb-4">Recuperar Contraseña</h3>
+                    <p className="text-gray-400 mb-6">Introduce tu email y te enviaremos un enlace para recuperarla.</p>
+                    <input type="email" placeholder="Tu email" value={resetEmail} onChange={(e) => setResetEmail(e.target.value)} className="w-full p-3 bg-gray-900/80 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-yellow-400 mb-4" />
+                    <button onClick={handlePasswordReset} className="w-full gold-gradient text-black font-bold py-3 px-8 rounded-full shadow-lg shadow-yellow-500/20 transform hover:scale-105 transition-all duration-300">Enviar Correo</button>
+                    <button onClick={() => setShowPasswordReset(false)} className="mt-4 text-gray-400 hover:text-white">Volver a inicio de sesión</button>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="text-center p-4 max-w-md mx-auto animate-fade-in flex flex-col items-center justify-center min-h-[70vh]">
+            <h2 className="text-6xl font-black gold-gradient bg-clip-text text-transparent mb-4">{isLogin ? 'Bienvenido' : 'Únete a la Porra'}</h2>
+            <p className="text-gray-400 mb-8 text-lg">{isLogin ? 'Inicia sesión para continuar.' : 'Crea tu cuenta para empezar a jugar.'}</p>
+            <div className="glass-effect rounded-xl p-8 w-full">
+                <form onSubmit={handleAuth} className="space-y-4">
+                    {!isLogin && (
+                        <input type="text" placeholder="Tu Nombre" value={name} onChange={(e) => setName(e.target.value)} required className="w-full p-3 bg-gray-900/80 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" />
+                    )}
+                    <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required className="w-full p-3 bg-gray-900/80 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" />
+                    <input type="password" placeholder="Contraseña" value={password} onChange={(e) => setPassword(e.target.value)} required className="w-full p-3 bg-gray-900/80 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" />
+                    <button type="submit" className="w-full gold-gradient text-black font-bold py-3 px-8 rounded-full shadow-lg shadow-yellow-500/20 transform hover:scale-105 transition-all duration-300">
+                        {isLogin ? 'Entrar' : 'Registrarse y Pagar 20€'}
+                    </button>
+                </form>
+                <button onClick={() => setIsLogin(!isLogin)} className="mt-6 text-yellow-400 hover:text-yellow-300">
+                    {isLogin ? '¿No tienes cuenta? Regístrate' : '¿Ya tienes cuenta? Inicia sesión'}
+                </button>
+                {isLogin && (
+                    <button onClick={() => setShowPasswordReset(true)} className="mt-2 text-sm text-gray-400 hover:text-white">
+                        ¿Has olvidado tu contraseña?
+                    </button>
+                )}
+            </div>
+        </div>
+    );
+};
+
+const PlayerDashboard = ({ loggedInPlayer, gameState, onShowModal, onLogout }) => {
     const { players, jornada, picksClosed } = gameState;
-    const player = players.find(p => p.id === loggedInPlayer.id);
-    if (!player) return null;
+    const player = players.find(p => p.id === loggedInPlayer.uid); // Usamos uid
+    if (!player) return <div className="text-center text-yellow-400">Cargando tus datos...</div>;
     const hasPicked = player.picks.some(p => p.jornada === jornada);
     const availableTeams = useMemo(() => { const pickedTeams = new Set(player.picks.map(p => p.team)); const teamsInJornada = new Set(JORNADAS_DATA[jornada]?.matches.flatMap(m => [m.home, m.away]) || []); return TEAMS.filter(t => !pickedTeams.has(t) && teamsInJornada.has(t) && !BANNED_TEAMS.includes(t)); }, [player.picks, jornada]);
     const [selectedTeam, setSelectedTeam] = useState('');
@@ -72,7 +147,7 @@ const PlayerDashboard = ({ loggedInPlayer, gameState, onShowModal }) => {
     return (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fade-in">
             <div className="lg:col-span-2 space-y-8">
-                <div className="glass-effect rounded-xl p-6"><div className="flex items-center gap-4"><UserIcon className="h-12 w-12 text-yellow-400" /><div><h2 className="text-3xl font-bold text-white">{player.name}</h2>{player.status === 'activo' ? <div className="flex items-center text-green-400 font-semibold"><ShieldCheckIcon className="h-5 w-5 mr-2"/>Activo</div> : <div className="flex items-center text-red-500 font-semibold"><ExclamationCircleIcon className="h-5 w-5 mr-2"/>Eliminado en J.{player.jornadaEliminado}</div>}</div></div></div>
+                <div className="glass-effect rounded-xl p-6"><div className="flex items-center justify-between"><div className="flex items-center gap-4"><UserIcon className="h-12 w-12 text-yellow-400" /><div><h2 className="text-3xl font-bold text-white">{player.name}</h2>{player.status === 'activo' ? <div className="flex items-center text-green-400 font-semibold"><ShieldCheckIcon className="h-5 w-5 mr-2"/>Activo</div> : <div className="flex items-center text-red-500 font-semibold"><ExclamationCircleIcon className="h-5 w-5 mr-2"/>Eliminado en J.{player.jornadaEliminado}</div>}</div></div><button onClick={onLogout} className="bg-red-600/80 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-600 transition-colors">Salir</button></div></div>
                 {player.status === 'activo' && (
                     <div className="glass-effect rounded-xl p-6">
                         <h3 className="text-2xl font-bold mb-4 gold-gradient bg-clip-text text-transparent">Jornada {jornada}: Tu Elección</h3>
@@ -85,18 +160,16 @@ const PlayerDashboard = ({ loggedInPlayer, gameState, onShowModal }) => {
             </div>
             <div className="space-y-8">
                 <div className="glass-effect rounded-xl p-6 text-center"><h3 className="text-xl font-semibold mb-2 gold-gradient bg-clip-text text-transparent">Bote Actual</h3><p className="text-5xl font-bold text-white">{((players.length * 20) * 0.85).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}</p><p className="text-sm text-gray-500 mt-2">Comisión: {((players.length * 20) * 0.15).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}</p></div>
-                <div className="glass-effect rounded-xl p-6"><h3 className="text-2xl font-bold mb-4 gold-gradient bg-clip-text text-transparent">Jugadores Activos</h3><ul className="space-y-3">{players.filter(p => p.status === 'activo').map(p => <li key={p.id} className="flex items-center text-white bg-black/20 p-3 rounded-md"><ShieldCheckIcon className="h-5 w-5 mr-3 text-green-400" />{p.name}</li>)}</ul></div>
+                <div className="glass-effect rounded-xl p-6"><h3 className="text-2xl font-bold mb-4 gold-gradient bg-clip-text text-transparent">Clasificación</h3><ul className="space-y-3">{players.sort((a, b) => b.picks.length - a.picks.length).map(p => <li key={p.id} className={`flex items-center justify-between text-white bg-black/20 p-3 rounded-md ${p.status === 'eliminado' ? 'opacity-50' : ''}`}><div className="flex items-center"><ShieldCheckIcon className={`h-5 w-5 mr-3 ${p.status === 'activo' ? 'text-green-400' : 'text-red-500'}`} />{p.name}</div><span className="font-bold">{p.picks.length} pts</span></li>)}</ul></div>
             </div>
         </div>
     );
 };
 
-const AdminPanel = ({ gameState, onProcessJornada, onAdvanceJornada, onShowModal, onAddPlayer, onRemovePick }) => {
+const AdminPanel = ({ onProcessJornada, onAdvanceJornada, onShowModal, onRemovePick, gameState }) => {
     const { players, jornada, picksClosed } = gameState;
-    const [newPlayerName, setNewPlayerName] = useState('');
     const [results, setResults] = useState(JORNADAS_DATA[jornada]?.matches.map(m => ({ matchId: m.id, winner: '' })) || []);
     useEffect(() => { setResults(JORNADAS_DATA[jornada]?.matches.map(m => ({ matchId: m.id, winner: '' })) || []); }, [jornada]);
-    const handleAddPlayer = (e) => { e.preventDefault(); if (newPlayerName.trim()) { onAddPlayer(newPlayerName.trim()); setNewPlayerName(''); } };
     const handleResultChange = (matchId, winner) => { setResults(prev => prev.map(r => r.matchId === matchId ? { ...r, winner } : r)); };
     const handleProcess = () => { const validResults = results.filter(r => r.winner); if (validResults.length === 0) { onShowModal("Error", "Debes introducir al menos un resultado para procesar la jornada."); return; } onProcessJornada(validResults); };
     const handleAdvance = () => { if (!JORNADAS_DATA[jornada + 1]) { onShowModal("Error", "No hay datos para la siguiente jornada."); return; } onAdvanceJornada(); };
@@ -104,7 +177,6 @@ const AdminPanel = ({ gameState, onProcessJornada, onAdvanceJornada, onShowModal
     return (
         <div className="glass-effect rounded-xl p-6 animate-fade-in">
             <h2 className="text-3xl font-bold mb-6 flex items-center gap-3 gold-gradient bg-clip-text text-transparent"><CogIcon className="h-8 w-8 text-yellow-400" />Panel de Administración</h2>
-            <div className="mb-8 bg-black/20 p-4 rounded-lg"><h3 className="text-xl font-bold text-yellow-400 mb-3">Añadir Jugador</h3><form onSubmit={handleAddPlayer} className="flex gap-2"><input type="text" value={newPlayerName} onChange={(e) => setNewPlayerName(e.target.value)} placeholder="Nombre del amigo" className="flex-grow p-2 bg-gray-900/80 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" /><button type="submit" className="bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-500 transition-colors">Añadir</button></form></div>
             <div className="mb-8 bg-black/20 p-4 rounded-lg"><h3 className="text-xl font-bold text-yellow-400 mb-3">Introducir Resultados Jornada {jornada}</h3><div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">{JORNADAS_DATA[jornada]?.matches.map(match => (<div key={match.id} className="flex items-center justify-between text-sm bg-gray-900/80 p-2 rounded-lg"><span className="text-gray-300 truncate pr-2">{match.home} vs {match.away}</span><select onChange={(e) => handleResultChange(match.id, e.target.value)} className="p-1 bg-gray-700 border border-gray-600 rounded text-white text-xs"><option value="" className="bg-gray-800">Ganador</option><option value={match.home} className="bg-gray-800">{match.home}</option><option value={match.away} className="bg-gray-800">{match.away}</option><option value="DRAW" className="bg-gray-800">Empate</option></select></div>))}</div></div>
             <div className="space-y-4 mb-6"><p className="text-white">Jornada Actual: <strong className="text-xl text-yellow-400">{jornada}</strong></p><p className="text-white">Estado de Elecciones: <strong className={picksClosed ? 'text-red-500' : 'text-green-400'}>{picksClosed ? 'Cerradas' : 'Abiertas'}</strong></p></div>
             <div className="flex flex-col sm:flex-row gap-4"><button onClick={handleProcess} disabled={picksClosed} className="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-500 disabled:bg-gray-600 transition-colors">Procesar Jornada {jornada}</button><button onClick={handleAdvance} disabled={!picksClosed} className="bg-purple-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-purple-500 disabled:bg-gray-600 transition-colors">Avanzar a Jornada {jornada + 1}</button></div>
@@ -117,37 +189,52 @@ const AdminPanel = ({ gameState, onProcessJornada, onAdvanceJornada, onShowModal
 };
 
 export default function App() {
-  const [screen, setScreen] = useState('welcome');
+  const [currentUser, setCurrentUser] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [gameState, setGameState] = useState({ players: [], jornada: 1, picksClosed: false });
-  const [loggedInPlayer, setLoggedInPlayer] = useState(null);
-  const [selectedPlayerId, setSelectedPlayerId] = useState('');
   const [modal, setModal] = useState({ isOpen: false, title: '', message: '' });
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    const unsubscribeAuth = onAuthStateChanged(auth, async user => {
+        if (user) {
+            // Comprobar si el usuario es admin
+            const userDoc = await getDoc(doc(db, "players", user.uid));
+            if (userDoc.exists() && userDoc.data().role === 'admin') {
+                setIsAdmin(true);
+            } else {
+                setIsAdmin(false);
+            }
+            setCurrentUser(user);
+        } else {
+            setCurrentUser(null);
+            setIsAdmin(false);
+        }
+        setIsLoading(false);
+    });
     const gameStateRef = doc(db, "game", "state");
     const unsubscribeGame = onSnapshot(gameStateRef, (doc) => { if (doc.exists()) { setGameState(prev => ({ ...prev, ...doc.data() })); } else { setDoc(gameStateRef, { jornada: 1, picksClosed: false }); } });
     const playersRef = collection(db, "players");
-    const unsubscribePlayers = onSnapshot(playersRef, (snapshot) => { const playersData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); setGameState(prev => ({ ...prev, players: playersData })); setIsLoading(false); });
-    return () => { unsubscribeGame(); unsubscribePlayers(); };
+    const unsubscribePlayers = onSnapshot(playersRef, (snapshot) => { const playersData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); setGameState(prev => ({ ...prev, players: playersData })); });
+    return () => { unsubscribeAuth(); unsubscribeGame(); unsubscribePlayers(); };
   }, []);
 
-  const handleEnterGame = () => { if (selectedPlayerId) { const player = gameState.players.find(p => p.id === selectedPlayerId); if (player) { setLoggedInPlayer(player); setScreen('dashboard'); } } };
   const handleShowModal = (title, message) => setModal({ isOpen: true, title, message });
   const handleCloseModal = () => setModal({ isOpen: false, title: '', message: '' });
-  const handleAddPlayer = async (name) => { try { await addDoc(collection(db, "players"), { name: name, status: 'activo', picks: [], jornadaEliminado: null }); handleShowModal("¡Jugador Añadido!", `Se ha añadido a ${name} a la porra.`); } catch (error) { handleShowModal("Error", "No se pudo añadir al jugador."); console.error("Error adding document: ", error); } };
-  const handleRemovePick = async (playerId) => { const player = gameState.players.find(p => p.id === playerId); if (!player) return; const newPicks = player.picks.filter(p => p.jornada !== gameState.jornada); const playerRef = doc(db, "players", playerId); try { await updateDoc(playerRef, { picks: newPicks }); handleShowModal("Elección Anulada", `Se ha borrado la elección de ${player.name} para la jornada ${gameState.jornada}.`); } catch (error) { handleShowModal("Error", "No se pudo anular la elección."); console.error("Error updating player pick: ", error); } };
+  const handleLogout = async () => { await signOut(auth); };
+  const handleRemovePick = async (playerId) => { const player = gameState.players.find(p => p.id === playerId); if (!player) return; const newPicks = player.picks.filter(p => p.jornada !== gameState.jornada); const playerRef = doc(db, "players", playerId); try { await updateDoc(playerRef, { picks: newPicks }); handleShowModal("Elección Anulada", `Se ha borrado la elección de ${player.name} para la jornada ${gameState.jornada}.`); } catch (error) { handleShowModal("Error", "No se pudo anular la elección."); } };
   const handleProcessJornada = async (results) => { const { players, jornada } = gameState; const batch = writeBatch(db); let eliminados = []; players.forEach(player => { if (player.status !== 'activo') return; let shouldBeEliminated = true; const pick = player.picks.find(p => p.jornada === jornada); if (pick) { const matchOfPick = JORNADAS_DATA[jornada].matches.find(m => m.home === pick.team || m.away === pick.team); if (matchOfPick) { const result = results.find(r => r.matchId === matchOfPick.id); if (result && result.winner === pick.team) { shouldBeEliminated = false; } } } if (shouldBeEliminated) { eliminados.push(player.name); const playerRef = doc(db, "players", player.id); batch.update(playerRef, { status: 'eliminado', jornadaEliminado: jornada }); } }); const gameStateRef = doc(db, "game", "state"); batch.update(gameStateRef, { picksClosed: true }); await batch.commit(); handleShowModal("Jornada Procesada", `Jugadores eliminados: ${eliminados.join(', ') || 'Ninguno'}. Las elecciones están cerradas.`); };
   const handleAdvanceJornada = async () => { const gameStateRef = doc(db, "game", "state"); await setDoc(gameStateRef, { jornada: gameState.jornada + 1, picksClosed: false }, { merge: true }); };
-  const handleGoToWelcome = () => { setLoggedInPlayer(null); setSelectedPlayerId(''); setScreen('welcome'); }
 
-  const renderScreen = () => {
-    if (isLoading) return <div className="text-center text-2xl text-yellow-400 mt-16">Conectando con la base de datos...</div>;
-    switch (screen) {
-      case 'dashboard': return loggedInPlayer ? <PlayerDashboard loggedInPlayer={loggedInPlayer} gameState={gameState} onShowModal={handleShowModal} /> : <div className="text-center text-xl text-red-500">Error: Selecciona un jugador para continuar.</div>;
-      case 'admin': return <AdminPanel gameState={gameState} onProcessJornada={handleProcessJornada} onAdvanceJornada={handleAdvanceJornada} onShowModal={handleShowModal} onAddPlayer={handleAddPlayer} onRemovePick={handleRemovePick} />;
-      case 'welcome': default: return <WelcomeScreen onEnter={handleEnterGame} players={gameState.players} selectedPlayerId={selectedPlayerId} setSelectedPlayerId={setSelectedPlayerId} />;
-    }
+  const renderContent = () => {
+      if (isLoading) return <div className="text-center text-2xl text-yellow-400 mt-16">Cargando...</div>;
+      if (currentUser) {
+          if (isAdmin) {
+              return <AdminPanel gameState={gameState} onProcessJornada={handleProcessJornada} onAdvanceJornada={handleAdvanceJornada} onShowModal={handleShowModal} onRemovePick={handleRemovePick} />;
+          }
+          return <PlayerDashboard loggedInPlayer={currentUser} gameState={gameState} onShowModal={handleShowModal} onLogout={handleLogout} />;
+      }
+      return <AuthScreen onShowModal={handleShowModal} />;
   };
 
   return (
@@ -163,14 +250,8 @@ export default function App() {
       <div className="relative z-10 flex flex-col min-h-screen">
         {modal.isOpen && <Modal title={modal.title} message={modal.message} onClose={handleCloseModal} />}
         <Header />
-        <nav className="bg-black/50 backdrop-blur-sm py-2 sticky top-0 z-30 mb-4 border-b border-t border-gray-800">
-            <div className="container mx-auto flex justify-center items-center gap-2 md:gap-6">
-                <button onClick={handleGoToWelcome} className="px-4 py-2 text-sm md:text-base rounded-lg transition-colors text-gray-300 hover:bg-gray-700 hover:text-white">Inicio / Cambiar Jugador</button>
-                <button onClick={() => setScreen('admin')} className="px-4 py-2 text-sm md:text-base rounded-lg transition-colors text-gray-300 hover:bg-gray-700 hover:text-white">Admin</button>
-            </div>
-        </nav>
         <main className="container mx-auto p-4 md:p-8 flex-grow">
-            {renderScreen()}
+            {renderContent()}
         </main>
         <Footer />
       </div>
