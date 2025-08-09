@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 // Importamos TODO lo necesario de Firebase, incluyendo Autenticación
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, doc, onSnapshot, setDoc, addDoc, updateDoc, getDoc } from "firebase/firestore";
+import { getFirestore, collection, doc, onSnapshot, setDoc, updateDoc, getDoc } from "firebase/firestore";
 import { 
     getAuth, 
     createUserWithEmailAndPassword, 
@@ -35,9 +35,32 @@ const CogIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" class
 const TrashIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" /></svg>;
 
 // --- DATOS DEL JUEGO ---
-const TEAMS = ["Alavés", "Athletic Club", "Atlético de Madrid", "FC Barcelona", "Betis", "Cádiz", "Celta Vigo", "Getafe", "Girona", "Granada", "Las Palmas", "Mallorca", "Osasuna", "Rayo Vallecano", "Real Madrid", "Real Sociedad", "Sevilla", "Valencia", "Villarreal", "Leganés", "Valladolid", "Espanyol"];
-const BANNED_TEAMS = ["Real Madrid", "FC Barcelona"];
-const JORNADAS_DATA = { 1: { matches: [ { id: 'J1-M1', home: 'Athletic Club', away: 'Getafe' }, { id: 'J1-M2', home: 'Betis', away: 'Girona' }, { id: 'J1-M3', home: 'Mallorca', away: 'Real Madrid' }, { id: 'J1-M4', home: 'Real Sociedad', away: 'Rayo Vallecano' }, { id: 'J1-M5', home: 'Valencia', away: 'FC Barcelona' }, { id: 'J1-M6', home: 'Villarreal', away: 'Atlético de Madrid' }, { id: 'J1-M7', home: 'Osasuna', away: 'Leganés' }, { id: 'J1-M8', home: 'Celta Vigo', away: 'Alavés' }, { id: 'J1-M9', home: 'Las Palmas', away: 'Sevilla' }, { id: 'J1-M10', home: 'Valladolid', away: 'Espanyol' } ], results: [ /* Los resultados se añadirían aquí al finalizar */ ] }, 2: { matches: [ { id: 'J2-M1', home: 'Alavés', away: 'Betis' }, { id: 'J2-M2', home: 'Atlético de Madrid', away: 'Athletic Club' }, { id: 'J2-M3', home: 'FC Barcelona', away: 'Valladolid' }, { id: 'J2-M4', home: 'Getafe', away: 'Rayo Vallecano' }, { id: 'J2-M5', home: 'Girona', away: 'Osasuna' }, { id: 'J2-M6', home: 'Real Madrid', away: 'Real Sociedad' }, { id: 'J2-M7', home: 'Sevilla', away: 'Celta Vigo' }, { id: 'J2-M8', home: 'Espanyol', away: 'Mallorca' }, { id: 'J2-M9', home: 'Leganés', away: 'Las Palmas' }, { id: 'J2-M10', home: 'Valencia', away: 'Villarreal' } ], results: [] }, 3: { matches: [ { id: 'J3-M1', home: 'Athletic Club', away: 'Valencia' }, { id: 'J3-M2', home: 'Betis', away: 'Getafe' }, { id: 'J3-M3', home: 'Celta Vigo', away: 'Villarreal' }, { id: 'J3-M4', home: 'Girona', away: 'Atlético de Madrid' }, { id: 'J3-M5', home: 'Las Palmas', away: 'Rayo Vallecano' }, { id: 'J3-M6', home: 'Mallorca', away: 'FC Barcelona' }, { id: 'J3-M7', home: 'Osasuna', away: 'Sevilla' }, { id: 'J3-M8', home: 'Real Madrid', away: 'Espanyol' }, { id: 'J3-M9', home: 'Real Sociedad', away: 'Alavés' }, { id: 'J3-M10', home: 'Valladolid', away: 'Leganés' } ], results: [] }, 4: { matches: [ { id: 'J4-M1', home: 'Alavés', away: 'Las Palmas' }, { id: 'J4-M2', home: 'Atlético de Madrid', away: 'Real Sociedad' }, { id: 'J4-M3', home: 'FC Barcelona', away: 'Girona' }, { id: 'J4-M4', home: 'Getafe', away: 'Mallorca' }, { id: 'J4-M5', home: 'Rayo Vallecano', away: 'Valladolid' }, { id: 'J4-M6', home: 'Sevilla', away: 'Real Madrid' }, { id: 'J4-M7', home: 'Valencia', away: 'Celta Vigo' }, { id: 'J4-M8', home: 'Villarreal', away: 'Betis' }, { id: 'J4-M9', home: 'Espanyol', away: 'Athletic Club' }, { id: 'J4-M10', home: 'Leganés', away: 'Osasuna' } ], results: [] }};
+const TEAMS_DATA = {
+    'ala': { name: 'Alavés', logo: 'https://ssl.gstatic.com/onebox/media/sports/logos/32_6Y-Q1e3u2y2-3Ias80A_96x96.png' },
+    'ath': { name: 'Athletic Club', logo: 'https://ssl.gstatic.com/onebox/media/sports/logos/paYnEE8hcrP96neHRNofhQ_96x96.png' },
+    'atm': { name: 'Atlético de Madrid', logo: 'https://ssl.gstatic.com/onebox/media/sports/logos/srSSZ961en6BAMtcB2nlyA_96x96.png' },
+    'bar': { name: 'FC Barcelona', logo: 'https://ssl.gstatic.com/onebox/media/sports/logos/paYnEE8hcrP96neHRNofhQ_96x96.png' },
+    'bet': { name: 'Betis', logo: 'https://ssl.gstatic.com/onebox/media/sports/logos/S0fDZjYYytbZaUt0f3cIhg_96x96.png' },
+    'cad': { name: 'Cádiz', logo: 'https://ssl.gstatic.com/onebox/media/sports/logos/Irs_FUL8l12H35I6la_sow_96x96.png' },
+    'cel': { name: 'Celta Vigo', logo: 'https://ssl.gstatic.com/onebox/media/sports/logos/1Gdpf-Ph-Ipu7_8h8a0v7g_96x96.png' },
+    'get': { name: 'Getafe', logo: 'https://ssl.gstatic.com/onebox/media/sports/logos/1f81u0h0NL1hZ3v3x_soCQ_96x96.png' },
+    'gir': { name: 'Girona', logo: 'https://ssl.gstatic.com/onebox/media/sports/logos/sHiSmLm_V4qBYa7e2a4G2A_96x96.png' },
+    'gra': { name: 'Granada', logo: 'https://ssl.gstatic.com/onebox/media/sports/logos/f-kQZblCFLSM2-t-2lG6Ag_96x96.png' },
+    'lp': { name: 'Las Palmas', logo: 'https://ssl.gstatic.com/onebox/media/sports/logos/l2V1L6a01sYY60y4j2-w1A_96x96.png' },
+    'mal': { name: 'Mallorca', logo: 'https://ssl.gstatic.com/onebox/media/sports/logos/1dfi-K2AC5q3xZ7652j7qg_96x96.png' },
+    'osa': { name: 'Osasuna', logo: 'https://ssl.gstatic.com/onebox/media/sports/logos/S-48I0hjkkc0D2dY9L-3xw_96x96.png' },
+    'ray': { name: 'Rayo Vallecano', logo: 'https://ssl.gstatic.com/onebox/media/sports/logos/QOUA2k5J41J2s2xMJWvQ_A_96x96.png' },
+    'rma': { name: 'Real Madrid', logo: 'https://ssl.gstatic.com/onebox/media/sports/logos/Th4fAVAZeCJWRcKoLW7koA_96x96.png' },
+    'rso': { name: 'Real Sociedad', logo: 'https://ssl.gstatic.com/onebox/media/sports/logos/6f2k-PGFzK62e2y6z15HSA_96x96.png' },
+    'sev': { name: 'Sevilla', logo: 'https://ssl.gstatic.com/onebox/media/sports/logos/h4FUmAq3_gR93vjHjE5t1A_96x96.png' },
+    'val': { name: 'Valencia', logo: 'https://ssl.gstatic.com/onebox/media/sports/logos/QPbGOIML1qIqzzc112-AEQ_96x96.png' },
+    'vil': { name: 'Villarreal', logo: 'https://ssl.gstatic.com/onebox/media/sports/logos/WKHd2bT-3e2e2VpUNvD_uw_96x96.png' },
+    'leg': { name: 'Leganés', logo: 'https://ssl.gstatic.com/onebox/media/sports/logos/62K2z9704o3nQX9xgrwD3w_96x96.png' },
+    'valld': { name: 'Valladolid', logo: 'https://ssl.gstatic.com/onebox/media/sports/logos/3h1fBwSjO3mb8gSjsd23aA_96x96.png' },
+    'esp': { name: 'Espanyol', logo: 'https://ssl.gstatic.com/onebox/media/sports/logos/wSDRf24sDbD3p87L-2rf5A_96x96.png' }
+};
+const BANNED_TEAMS = ['rma', 'bar'];
+const JORNADAS_DATA = { 1: { matches: [ { id: 'J1-M1', home: 'ath', away: 'get' }, { id: 'J1-M2', home: 'bet', away: 'gir' }, { id: 'J1-M3', home: 'mal', away: 'rma' }, { id: 'J1-M4', home: 'rso', away: 'ray' }, { id: 'J1-M5', home: 'val', away: 'bar' }, { id: 'J1-M6', home: 'vil', away: 'atm' }, { id: 'J1-M7', home: 'osa', away: 'leg' }, { id: 'J1-M8', home: 'cel', away: 'ala' }, { id: 'J1-M9', home: 'lp', away: 'sev' }, { id: 'J1-M10', home: 'valld', away: 'esp' } ], results: [] }, 2: { matches: [ { id: 'J2-M1', home: 'ala', away: 'bet' }, { id: 'J2-M2', home: 'atm', away: 'ath' }, { id: 'J2-M3', home: 'bar', away: 'valld' }, { id: 'J2-M4', home: 'get', away: 'ray' }, { id: 'J2-M5', home: 'gir', away: 'osa' }, { id: 'J2-M6', home: 'rma', away: 'rso' }, { id: 'J2-M7', home: 'sev', away: 'cel' }, { id: 'J2-M8', home: 'esp', away: 'mal' }, { id: 'J2-M9', home: 'leg', away: 'lp' }, { id: 'J2-M10', home: 'val', away: 'vil' } ], results: [] }, 3: { matches: [ { id: 'J3-M1', home: 'ath', away: 'val' }, { id: 'J3-M2', home: 'bet', away: 'get' }, { id: 'J3-M3', home: 'cel', away: 'vil' }, { id: 'J3-M4', home: 'gir', away: 'atm' }, { id: 'J3-M5', home: 'lp', away: 'ray' }, { id: 'J3-M6', home: 'mal', away: 'bar' }, { id: 'J3-M7', home: 'osa', away: 'sev' }, { id: 'J3-M8', home: 'rma', away: 'esp' }, { id: 'J3-M9', home: 'rso', away: 'ala' }, { id: 'J3-M10', home: 'valld', away: 'leg' } ], results: [] }, 4: { matches: [ { id: 'J4-M1', home: 'ala', away: 'lp' }, { id: 'J4-M2', home: 'atm', away: 'rso' }, { id: 'J4-M3', home: 'bar', away: 'gir' }, { id: 'J4-M4', home: 'get', away: 'mal' }, { id: 'J4-M5', home: 'ray', away: 'valld' }, { id: 'J4-M6', home: 'sev', away: 'rma' }, { id: 'J4-M7', home: 'val', away: 'cel' }, { id: 'J4-M8', home: 'vil', away: 'bet' }, { id: 'J4-M9', home: 'esp', away: 'ath' }, { id: 'J4-M10', home: 'leg', away: 'osa' } ], results: [] }};
 
 // --- COMPONENTES DE UI con DISEÑO GLASSMORPHISM ---
 
@@ -50,99 +73,24 @@ const AuthScreen = ({ onShowModal }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [name, setName] = useState('');
-    const [error, setError] = useState('');
     const [resetEmail, setResetEmail] = useState('');
     const [showPasswordReset, setShowPasswordReset] = useState(false);
 
-    const handleAuth = async (e) => {
-        e.preventDefault();
-        setError('');
-        try {
-            if (isLogin) {
-                await signInWithEmailAndPassword(auth, email, password);
-            } else {
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                // Creamos el documento del jugador en Firestore
-                await setDoc(doc(db, "players", userCredential.user.uid), {
-                    name: name,
-                    email: email,
-                    status: 'activo',
-                    picks: [],
-                    jornadaEliminado: null,
-                    role: 'player'
-                });
-            }
-        } catch (err) {
-            setError(err.message);
-            onShowModal("Error de Autenticación", err.message);
-        }
-    };
-    
-    const handlePasswordReset = async () => {
-        if (!resetEmail) {
-            onShowModal("Error", "Por favor, introduce tu email para recuperar la contraseña.");
-            return;
-        }
-        try {
-            await sendPasswordResetEmail(auth, resetEmail);
-            onShowModal("Correo Enviado", "Se ha enviado un enlace a tu email para recuperar tu contraseña.");
-            setShowPasswordReset(false);
-            setResetEmail('');
-        } catch (err) {
-            onShowModal("Error", err.message);
-        }
-    };
+    const handleAuth = async (e) => { e.preventDefault(); try { if (isLogin) { await signInWithEmailAndPassword(auth, email, password); } else { const userCredential = await createUserWithEmailAndPassword(auth, email, password); await setDoc(doc(db, "players", userCredential.user.uid), { name: name, email: email, status: 'activo', picks: [], jornadaEliminado: null, role: 'player' }); } } catch (err) { onShowModal("Error de Autenticación", err.message); } };
+    const handlePasswordReset = async () => { if (!resetEmail) { onShowModal("Error", "Por favor, introduce tu email."); return; } try { await sendPasswordResetEmail(auth, resetEmail); onShowModal("Correo Enviado", "Se ha enviado un enlace a tu email para recuperar tu contraseña."); setShowPasswordReset(false); setResetEmail(''); } catch (err) { onShowModal("Error", err.message); } };
 
-    if (showPasswordReset) {
-        return (
-            <div className="text-center p-4 max-w-md mx-auto animate-fade-in flex flex-col items-center justify-center min-h-[70vh]">
-                <div className="glass-effect rounded-xl p-8 w-full">
-                    <h3 className="text-2xl font-semibold text-white mb-4">Recuperar Contraseña</h3>
-                    <p className="text-gray-400 mb-6">Introduce tu email y te enviaremos un enlace para recuperarla.</p>
-                    <input type="email" placeholder="Tu email" value={resetEmail} onChange={(e) => setResetEmail(e.target.value)} className="w-full p-3 bg-gray-900/80 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-yellow-400 mb-4" />
-                    <button onClick={handlePasswordReset} className="w-full gold-gradient text-black font-bold py-3 px-8 rounded-full shadow-lg shadow-yellow-500/20 transform hover:scale-105 transition-all duration-300">Enviar Correo</button>
-                    <button onClick={() => setShowPasswordReset(false)} className="mt-4 text-gray-400 hover:text-white">Volver a inicio de sesión</button>
-                </div>
-            </div>
-        );
-    }
-
-    return (
-        <div className="text-center p-4 max-w-md mx-auto animate-fade-in flex flex-col items-center justify-center min-h-[70vh]">
-            <h2 className="text-6xl font-black gold-gradient bg-clip-text text-transparent mb-4">{isLogin ? 'Bienvenido' : 'Únete a la Porra'}</h2>
-            <p className="text-gray-400 mb-8 text-lg">{isLogin ? 'Inicia sesión para continuar.' : 'Crea tu cuenta para empezar a jugar.'}</p>
-            <div className="glass-effect rounded-xl p-8 w-full">
-                <form onSubmit={handleAuth} className="space-y-4">
-                    {!isLogin && (
-                        <input type="text" placeholder="Tu Nombre" value={name} onChange={(e) => setName(e.target.value)} required className="w-full p-3 bg-gray-900/80 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" />
-                    )}
-                    <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required className="w-full p-3 bg-gray-900/80 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" />
-                    <input type="password" placeholder="Contraseña" value={password} onChange={(e) => setPassword(e.target.value)} required className="w-full p-3 bg-gray-900/80 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" />
-                    <button type="submit" className="w-full gold-gradient text-black font-bold py-3 px-8 rounded-full shadow-lg shadow-yellow-500/20 transform hover:scale-105 transition-all duration-300">
-                        {isLogin ? 'Entrar' : 'Registrarse y Pagar 20€'}
-                    </button>
-                </form>
-                <button onClick={() => setIsLogin(!isLogin)} className="mt-6 text-yellow-400 hover:text-yellow-300">
-                    {isLogin ? '¿No tienes cuenta? Regístrate' : '¿Ya tienes cuenta? Inicia sesión'}
-                </button>
-                {isLogin && (
-                    <button onClick={() => setShowPasswordReset(true)} className="mt-2 text-sm text-gray-400 hover:text-white">
-                        ¿Has olvidado tu contraseña?
-                    </button>
-                )}
-            </div>
-        </div>
-    );
+    if (showPasswordReset) { return ( <div className="text-center p-4 max-w-md mx-auto animate-fade-in flex flex-col items-center justify-center min-h-[70vh]"><div className="glass-effect rounded-xl p-8 w-full"><h3 className="text-2xl font-semibold text-white mb-4">Recuperar Contraseña</h3><p className="text-gray-400 mb-6">Introduce tu email y te enviaremos un enlace.</p><input type="email" placeholder="Tu email" value={resetEmail} onChange={(e) => setResetEmail(e.target.value)} className="w-full p-3 bg-gray-900/80 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-yellow-400 mb-4" /><button onClick={handlePasswordReset} className="w-full gold-gradient text-black font-bold py-3 px-8 rounded-full shadow-lg shadow-yellow-500/20 transform hover:scale-105 transition-all duration-300">Enviar Correo</button><button onClick={() => setShowPasswordReset(false)} className="mt-4 text-gray-400 hover:text-white">Volver</button></div></div> ); }
+    return ( <div className="text-center p-4 max-w-md mx-auto animate-fade-in flex flex-col items-center justify-center min-h-[70vh]"><h2 className="text-6xl font-black gold-gradient bg-clip-text text-transparent mb-4">{isLogin ? 'Bienvenido' : 'Únete a la Porra'}</h2><p className="text-gray-400 mb-8 text-lg">{isLogin ? 'Inicia sesión para continuar.' : 'Crea tu cuenta para empezar a jugar.'}</p><div className="glass-effect rounded-xl p-8 w-full"><form onSubmit={handleAuth} className="space-y-4">{!isLogin && (<input type="text" placeholder="Tu Nombre" value={name} onChange={(e) => setName(e.target.value)} required className="w-full p-3 bg-gray-900/80 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" />)}<input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required className="w-full p-3 bg-gray-900/80 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" /><input type="password" placeholder="Contraseña" value={password} onChange={(e) => setPassword(e.target.value)} required className="w-full p-3 bg-gray-900/80 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" /><button type="submit" className="w-full gold-gradient text-black font-bold py-3 px-8 rounded-full shadow-lg shadow-yellow-500/20 transform hover:scale-105 transition-all duration-300">{isLogin ? 'Entrar' : 'Registrarse y Pagar 20€'}</button></form><button onClick={() => setIsLogin(!isLogin)} className="mt-6 text-yellow-400 hover:text-yellow-300">{isLogin ? '¿No tienes cuenta? Regístrate' : '¿Ya tienes cuenta? Inicia sesión'}</button>{isLogin && (<button onClick={() => setShowPasswordReset(true)} className="mt-2 text-sm text-gray-400 hover:text-white">¿Has olvidado tu contraseña?</button>)}</div></div> );
 };
 
 const PlayerDashboard = ({ loggedInPlayer, gameState, onShowModal, onLogout }) => {
     const { players, jornada, picksClosed } = gameState;
-    const player = players.find(p => p.id === loggedInPlayer.uid); // Usamos uid
+    const player = players.find(p => p.id === loggedInPlayer.uid);
     if (!player) return <div className="text-center text-yellow-400">Cargando tus datos...</div>;
     const hasPicked = player.picks.some(p => p.jornada === jornada);
-    const availableTeams = useMemo(() => { const pickedTeams = new Set(player.picks.map(p => p.team)); const teamsInJornada = new Set(JORNADAS_DATA[jornada]?.matches.flatMap(m => [m.home, m.away]) || []); return TEAMS.filter(t => !pickedTeams.has(t) && teamsInJornada.has(t) && !BANNED_TEAMS.includes(t)); }, [player.picks, jornada]);
+    const availableTeams = useMemo(() => { const pickedTeams = new Set(player.picks.map(p => p.team)); const teamsInJornada = new Set(JORNADAS_DATA[jornada]?.matches.flatMap(m => [m.home, m.away]) || []); return Object.keys(TEAMS_DATA).filter(teamId => !pickedTeams.has(teamId) && teamsInJornada.has(teamId) && !BANNED_TEAMS.includes(teamId)); }, [player.picks, jornada]);
     const [selectedTeam, setSelectedTeam] = useState('');
-    const handleSubmit = async (e) => { e.preventDefault(); if (selectedTeam) { const newPick = { jornada, team: selectedTeam }; const updatedPicks = [...player.picks, newPick]; const playerRef = doc(db, "players", player.id); await updateDoc(playerRef, { picks: updatedPicks }); onShowModal("¡Elección Guardada!", `Has elegido a ${selectedTeam} para la jornada ${jornada}. ¡Mucha suerte!`); setSelectedTeam(''); } };
+    const handleSubmit = async (e) => { e.preventDefault(); if (selectedTeam) { const newPick = { jornada, team: selectedTeam }; const updatedPicks = [...player.picks, newPick]; const playerRef = doc(db, "players", player.id); await updateDoc(playerRef, { picks: updatedPicks }); onShowModal("¡Elección Guardada!", `Has elegido a ${TEAMS_DATA[selectedTeam].name}. ¡Mucha suerte!`); setSelectedTeam(''); } };
     
     return (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fade-in">
@@ -151,12 +99,12 @@ const PlayerDashboard = ({ loggedInPlayer, gameState, onShowModal, onLogout }) =
                 {player.status === 'activo' && (
                     <div className="glass-effect rounded-xl p-6">
                         <h3 className="text-2xl font-bold mb-4 gold-gradient bg-clip-text text-transparent">Jornada {jornada}: Tu Elección</h3>
-                        {picksClosed ? <div className="text-center p-4 bg-black/20 rounded-lg"><p className="text-yellow-400 text-lg">Las elecciones están cerradas.</p><p className="text-gray-300 mt-2">Tu elección: <strong className="font-bold text-white">{player.picks.find(p=>p.jornada === jornada)?.team || 'N/A'}</strong></p></div>
-                        : hasPicked ? <div className="text-center p-4 bg-black/20 rounded-lg"><p className="text-green-400 text-lg">¡Elección guardada!</p><p className="text-gray-300 mt-2">Has elegido a: <strong className="font-bold text-white">{player.picks.find(p=>p.jornada === jornada).team}</strong></p></div>
-                        : (<form onSubmit={handleSubmit}><p className="text-gray-400 mb-4">Elige un equipo ganador para esta jornada.</p><select value={selectedTeam} onChange={(e) => setSelectedTeam(e.target.value)} className="w-full p-3 bg-gray-900/80 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"><option value="" className="bg-gray-800">-- Selecciona un equipo --</option>{availableTeams.map(team => <option key={team} value={team} className="bg-gray-800">{team}</option>)}</select><button type="submit" disabled={!selectedTeam} className="mt-4 w-full gold-gradient text-black font-bold py-3 rounded-full shadow-lg shadow-yellow-500/20 transform hover:scale-105 transition-all duration-300 disabled:bg-gray-700 disabled:text-gray-400 disabled:cursor-not-allowed">Confirmar Elección</button></form>)}
+                        {picksClosed ? <div className="text-center p-4 bg-black/20 rounded-lg"><p className="text-yellow-400 text-lg">Las elecciones están cerradas.</p><p className="text-gray-300 mt-2">Tu elección: <strong className="font-bold text-white">{player.picks.find(p=>p.jornada === jornada)?.team ? TEAMS_DATA[player.picks.find(p=>p.jornada === jornada)?.team].name : 'N/A'}</strong></p></div>
+                        : hasPicked ? <div className="text-center p-4 bg-black/20 rounded-lg"><p className="text-green-400 text-lg">¡Elección guardada!</p><p className="text-gray-300 mt-2">Has elegido a: <strong className="font-bold text-white">{TEAMS_DATA[player.picks.find(p=>p.jornada === jornada).team].name}</strong></p></div>
+                        : (<form onSubmit={handleSubmit}><p className="text-gray-400 mb-4">Elige un equipo ganador para esta jornada.</p><select value={selectedTeam} onChange={(e) => setSelectedTeam(e.target.value)} className="w-full p-3 bg-gray-900/80 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"><option value="" className="bg-gray-800">-- Selecciona un equipo --</option>{availableTeams.map(teamId => <option key={teamId} value={teamId} className="bg-gray-800">{TEAMS_DATA[teamId].name}</option>)}</select><button type="submit" disabled={!selectedTeam} className="mt-4 w-full gold-gradient text-black font-bold py-3 rounded-full shadow-lg shadow-yellow-500/20 transform hover:scale-105 transition-all duration-300 disabled:bg-gray-700 disabled:text-gray-400 disabled:cursor-not-allowed">Confirmar Elección</button></form>)}
                     </div>
                 )}
-                <div className="glass-effect rounded-xl p-6"><h3 className="text-2xl font-bold mb-4 gold-gradient bg-clip-text text-transparent">Historial</h3>{player.picks.length > 0 ? <ul className="space-y-2">{player.picks.slice().reverse().map(pick => <li key={pick.jornada} className="flex justify-between items-center bg-black/20 p-3 rounded-md"><span className="text-gray-400">Jornada {pick.jornada}</span><strong className="font-semibold text-white">{pick.team}</strong></li>)}</ul> : <p className="text-gray-400">Aún no has hecho ninguna elección.</p>}</div>
+                <div className="glass-effect rounded-xl p-6"><h3 className="text-2xl font-bold mb-4 gold-gradient bg-clip-text text-transparent">Partidos Jornada {jornada}</h3><div className="space-y-3">{JORNADAS_DATA[jornada]?.matches.map(match => (<div key={match.id} className="flex items-center justify-center text-center bg-black/20 p-3 rounded-lg"><div className="flex-1 flex items-center justify-end gap-3"><span className="font-bold text-white">{TEAMS_DATA[match.home].name}</span><img src={TEAMS_DATA[match.home].logo} alt={TEAMS_DATA[match.home].name} className="w-8 h-8"/></div><span className="text-gray-500 mx-4">vs</span><div className="flex-1 flex items-center justify-start gap-3"><img src={TEAMS_DATA[match.away].logo} alt={TEAMS_DATA[match.away].name} className="w-8 h-8"/><span className="font-bold text-white">{TEAMS_DATA[match.away].name}</span></div></div>))}</div></div>
             </div>
             <div className="space-y-8">
                 <div className="glass-effect rounded-xl p-6 text-center"><h3 className="text-xl font-semibold mb-2 gold-gradient bg-clip-text text-transparent">Bote Actual</h3><p className="text-5xl font-bold text-white">{((players.length * 20) * 0.85).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}</p><p className="text-sm text-gray-500 mt-2">Comisión: {((players.length * 20) * 0.15).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}</p></div>
@@ -177,12 +125,12 @@ const AdminPanel = ({ onProcessJornada, onAdvanceJornada, onShowModal, onRemoveP
     return (
         <div className="glass-effect rounded-xl p-6 animate-fade-in">
             <h2 className="text-3xl font-bold mb-6 flex items-center gap-3 gold-gradient bg-clip-text text-transparent"><CogIcon className="h-8 w-8 text-yellow-400" />Panel de Administración</h2>
-            <div className="mb-8 bg-black/20 p-4 rounded-lg"><h3 className="text-xl font-bold text-yellow-400 mb-3">Introducir Resultados Jornada {jornada}</h3><div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">{JORNADAS_DATA[jornada]?.matches.map(match => (<div key={match.id} className="flex items-center justify-between text-sm bg-gray-900/80 p-2 rounded-lg"><span className="text-gray-300 truncate pr-2">{match.home} vs {match.away}</span><select onChange={(e) => handleResultChange(match.id, e.target.value)} className="p-1 bg-gray-700 border border-gray-600 rounded text-white text-xs"><option value="" className="bg-gray-800">Ganador</option><option value={match.home} className="bg-gray-800">{match.home}</option><option value={match.away} className="bg-gray-800">{match.away}</option><option value="DRAW" className="bg-gray-800">Empate</option></select></div>))}</div></div>
+            <div className="mb-8 bg-black/20 p-4 rounded-lg"><h3 className="text-xl font-bold text-yellow-400 mb-3">Introducir Resultados Jornada {jornada}</h3><div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">{JORNADAS_DATA[jornada]?.matches.map(match => (<div key={match.id} className="flex items-center justify-between text-sm bg-gray-900/80 p-2 rounded-lg"><span className="text-gray-300 truncate pr-2">{TEAMS_DATA[match.home].name} vs {TEAMS_DATA[match.away].name}</span><select onChange={(e) => handleResultChange(match.id, e.target.value)} className="p-1 bg-gray-700 border border-gray-600 rounded text-white text-xs"><option value="" className="bg-gray-800">Ganador</option><option value={match.home} className="bg-gray-800">{TEAMS_DATA[match.home].name}</option><option value={match.away} className="bg-gray-800">{TEAMS_DATA[match.away].name}</option><option value="DRAW" className="bg-gray-800">Empate</option></select></div>))}</div></div>
             <div className="space-y-4 mb-6"><p className="text-white">Jornada Actual: <strong className="text-xl text-yellow-400">{jornada}</strong></p><p className="text-white">Estado de Elecciones: <strong className={picksClosed ? 'text-red-500' : 'text-green-400'}>{picksClosed ? 'Cerradas' : 'Abiertas'}</strong></p></div>
             <div className="flex flex-col sm:flex-row gap-4"><button onClick={handleProcess} disabled={picksClosed} className="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-500 disabled:bg-gray-600 transition-colors">Procesar Jornada {jornada}</button><button onClick={handleAdvance} disabled={!picksClosed} className="bg-purple-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-purple-500 disabled:bg-gray-600 transition-colors">Avanzar a Jornada {jornada + 1}</button></div>
             <div className="mt-8"><h3 className="text-2xl font-bold mb-4 gold-gradient bg-clip-text text-transparent">Lista de Jugadores</h3><div className="overflow-x-auto"><table className="w-full text-left text-white">
                 <thead className="border-b border-gray-700"><tr className="text-gray-400 text-sm"><th className="p-3">Nombre</th><th className="p-3">Estado</th><th className="p-3">Elección (J{jornada})</th><th className="p-3 text-right">Acciones</th></tr></thead>
-                <tbody>{players.map(p => { const currentPick = p.picks.find(pick => pick.jornada === jornada); return ( <tr key={p.id} className="border-b border-gray-800 hover:bg-gray-900/50"><td className="p-3 font-semibold">{p.name}</td><td className={`p-3 font-semibold ${p.status === 'activo' ? 'text-green-400' : 'text-red-500'}`}>{p.status}</td><td className="p-3">{currentPick?.team || <span className="text-gray-500">Sin elección</span>}</td><td className="p-3 text-right">{currentPick && !picksClosed && (<button onClick={() => onRemovePick(p.id)} className="bg-red-700 text-white text-xs font-bold p-2 rounded-full hover:bg-red-600 transition-colors"><TrashIcon /></button>)}</td></tr> )})}</tbody>
+                <tbody>{players.map(p => { const currentPick = p.picks.find(pick => pick.jornada === jornada); return ( <tr key={p.id} className="border-b border-gray-800 hover:bg-gray-900/50"><td className="p-3 font-semibold">{p.name}</td><td className={`p-3 font-semibold ${p.status === 'activo' ? 'text-green-400' : 'text-red-500'}`}>{p.status}</td><td className="p-3">{currentPick?.team ? TEAMS_DATA[currentPick.team].name : <span className="text-gray-500">Sin elección</span>}</td><td className="p-3 text-right">{currentPick && !picksClosed && (<button onClick={() => onRemovePick(p.id)} className="bg-red-700 text-white text-xs font-bold p-2 rounded-full hover:bg-red-600 transition-colors"><TrashIcon /></button>)}</td></tr> )})}</tbody>
             </table></div></div>
         </div>
     );
@@ -198,13 +146,8 @@ export default function App() {
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, async user => {
         if (user) {
-            // Comprobar si el usuario es admin
             const userDoc = await getDoc(doc(db, "players", user.uid));
-            if (userDoc.exists() && userDoc.data().role === 'admin') {
-                setIsAdmin(true);
-            } else {
-                setIsAdmin(false);
-            }
+            if (userDoc.exists() && userDoc.data().role === 'admin') { setIsAdmin(true); } else { setIsAdmin(false); }
             setCurrentUser(user);
         } else {
             setCurrentUser(null);
@@ -241,7 +184,7 @@ export default function App() {
     <div className="bg-black text-white min-h-screen font-sans flex flex-col">
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap');
-        body { font-family: 'Roboto', sans-serif; }
+        body { font-family: 'Roboto', sans-serif; background-color: #000; }
         .animate-fade-in { animation: fadeIn 0.5s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .gold-gradient { background: linear-gradient(135deg, #FFD700, #FFA500); }
