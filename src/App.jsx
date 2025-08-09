@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, doc, onSnapshot, setDoc, addDoc, writeBatch } from "firebase/firestore";
+import { getFirestore, collection, doc, onSnapshot, setDoc, addDoc, updateDoc } from "firebase/firestore";
 
 // --- TUS CLAVES DE FIREBASE ---
 const firebaseConfig = {
@@ -28,69 +28,13 @@ const TEAMS = ["Alavés", "Athletic Club", "Atlético de Madrid", "FC Barcelona"
 const BANNED_TEAMS = ["Real Madrid", "FC Barcelona"];
 
 const JORNADAS_DATA = {
-    1: {
-        matches: [
-            { id: 'J1-M1', home: 'Athletic Club', away: 'Getafe' },
-            { id: 'J1-M2', home: 'Betis', away: 'Girona' },
-            { id: 'J1-M3', home: 'Mallorca', away: 'Real Madrid' },
-            { id: 'J1-M4', home: 'Real Sociedad', away: 'Rayo Vallecano' },
-            { id: 'J1-M5', home: 'Valencia', away: 'FC Barcelona' },
-            { id: 'J1-M6', home: 'Villarreal', away: 'Atlético de Madrid' },
-            { id: 'J1-M7', home: 'Osasuna', away: 'Leganés' },
-            { id: 'J1-M8', home: 'Celta Vigo', away: 'Alavés' },
-            { id: 'J1-M9', home: 'Las Palmas', away: 'Sevilla' },
-            { id: 'J1-M10', home: 'Valladolid', away: 'Espanyol' }
-        ],
-        results: [ /* Los resultados se añadirían aquí al finalizar */ ]
-    },
-    2: {
-        matches: [
-            { id: 'J2-M1', home: 'Alavés', away: 'Betis' },
-            { id: 'J2-M2', home: 'Atlético de Madrid', away: 'Athletic Club' },
-            { id: 'J2-M3', home: 'FC Barcelona', away: 'Valladolid' },
-            { id: 'J2-M4', home: 'Getafe', away: 'Rayo Vallecano' },
-            { id: 'J2-M5', home: 'Girona', away: 'Osasuna' },
-            { id: 'J2-M6', home: 'Real Madrid', away: 'Real Sociedad' },
-            { id: 'J2-M7', home: 'Sevilla', away: 'Celta Vigo' },
-            { id: 'J2-M8', home: 'Espanyol', away: 'Mallorca' },
-            { id: 'J2-M9', home: 'Leganés', away: 'Las Palmas' },
-            { id: 'J2-M10', home: 'Valencia', away: 'Villarreal' }
-        ],
-        results: []
-    },
-    3: {
-        matches: [
-            { id: 'J3-M1', home: 'Athletic Club', away: 'Valencia' },
-            { id: 'J3-M2', home: 'Betis', away: 'Getafe' },
-            { id: 'J3-M3', home: 'Celta Vigo', away: 'Villarreal' },
-            { id: 'J3-M4', home: 'Girona', away: 'Atlético de Madrid' },
-            { id: 'J3-M5', home: 'Las Palmas', away: 'Rayo Vallecano' },
-            { id: 'J3-M6', home: 'Mallorca', away: 'FC Barcelona' },
-            { id: 'J3-M7', home: 'Osasuna', away: 'Sevilla' },
-            { id: 'J3-M8', home: 'Real Madrid', away: 'Espanyol' },
-            { id: 'J3-M9', home: 'Real Sociedad', away: 'Alavés' },
-            { id: 'J3-M10', home: 'Valladolid', away: 'Leganés' }
-        ],
-        results: []
-    },
-    4: {
-        matches: [
-            { id: 'J4-M1', home: 'Alavés', away: 'Las Palmas' },
-            { id: 'J4-M2', home: 'Atlético de Madrid', away: 'Real Sociedad' },
-            { id: 'J4-M3', home: 'FC Barcelona', away: 'Girona' },
-            { id: 'J4-M4', home: 'Getafe', away: 'Mallorca' },
-            { id: 'J4-M5', home: 'Rayo Vallecano', away: 'Valladolid' },
-            { id: 'J4-M6', home: 'Sevilla', away: 'Real Madrid' },
-            { id: 'J4-M7', home: 'Valencia', away: 'Celta Vigo' },
-            { id: 'J4-M8', home: 'Villarreal', away: 'Betis' },
-            { id: 'J4-M9', home: 'Espanyol', away: 'Athletic Club' },
-            { id: 'J4-M10', home: 'Leganés', away: 'Osasuna' }
-        ],
-        results: []
-    }
+    1: { matches: [ { id: 'J1-M1', home: 'Athletic Club', away: 'Getafe' }, { id: 'J1-M2', home: 'Betis', away: 'Girona' }, { id: 'J1-M3', home: 'Mallorca', away: 'Real Madrid' }, { id: 'J1-M4', home: 'Real Sociedad', away: 'Rayo Vallecano' }, { id: 'J1-M5', home: 'Valencia', away: 'FC Barcelona' }, { id: 'J1-M6', home: 'Villarreal', away: 'Atlético de Madrid' }, { id: 'J1-M7', home: 'Osasuna', away: 'Leganés' }, { id: 'J1-M8', home: 'Celta Vigo', away: 'Alavés' }, { id: 'J1-M9', home: 'Las Palmas', away: 'Sevilla' }, { id: 'J1-M10', home: 'Valladolid', away: 'Espanyol' } ], results: [ /* Los resultados se añadirían aquí al finalizar */ ] },
+    2: { matches: [ { id: 'J2-M1', home: 'Alavés', away: 'Betis' }, { id: 'J2-M2', home: 'Atlético de Madrid', away: 'Athletic Club' }, { id: 'J2-M3', home: 'FC Barcelona', away: 'Valladolid' }, { id: 'J2-M4', home: 'Getafe', away: 'Rayo Vallecano' }, { id: 'J2-M5', home: 'Girona', away: 'Osasuna' }, { id: 'J2-M6', home: 'Real Madrid', away: 'Real Sociedad' }, { id: 'J2-M7', home: 'Sevilla', away: 'Celta Vigo' }, { id: 'J2-M8', home: 'Espanyol', away: 'Mallorca' }, { id: 'J2-M9', home: 'Leganés', away: 'Las Palmas' }, { id: 'J2-M10', home: 'Valencia', away: 'Villarreal' } ], results: [] },
+    3: { matches: [ { id: 'J3-M1', home: 'Athletic Club', away: 'Valencia' }, { id: 'J3-M2', home: 'Betis', away: 'Getafe' }, { id: 'J3-M3', home: 'Celta Vigo', away: 'Villarreal' }, { id: 'J3-M4', home: 'Girona', away: 'Atlético de Madrid' }, { id: 'J3-M5', home: 'Las Palmas', away: 'Rayo Vallecano' }, { id: 'J3-M6', home: 'Mallorca', away: 'FC Barcelona' }, { id: 'J3-M7', home: 'Osasuna', away: 'Sevilla' }, { id: 'J3-M8', home: 'Real Madrid', away: 'Espanyol' }, { id: 'J3-M9', home: 'Real Sociedad', away: 'Alavés' }, { id: 'J3-M10', home: 'Valladolid', away: 'Leganés' } ], results: [] },
+    4: { matches: [ { id: 'J4-M1', home: 'Alavés', away: 'Las Palmas' }, { id: 'J4-M2', home: 'Atlético de Madrid', away: 'Real Sociedad' }, { id: 'J4-M3', home: 'FC Barcelona', away: 'Girona' }, { id: 'J4-M4', home: 'Getafe', away: 'Mallorca' }, { id: 'J4-M5', home: 'Rayo Vallecano', away: 'Valladolid' }, { id: 'J4-M6', home: 'Sevilla', away: 'Real Madrid' }, { id: 'J4-M7', home: 'Valencia', away: 'Celta Vigo' }, { id: 'J4-M8', home: 'Villarreal', away: 'Betis' }, { id: 'J4-M9', home: 'Espanyol', away: 'Athletic Club' }, { id: 'J4-M10', home: 'Leganés', away: 'Osasuna' } ], results: [] }
 };
 
-// --- COMPONENTES DE UI (La mayoría sin cambios) ---
+// --- COMPONENTES DE UI ---
 const Header = () => <header className="bg-black text-white p-4 shadow-lg shadow-yellow-400/20"><div className="container mx-auto flex items-center justify-center"><TrophyIcon /><h1 className="text-2xl md:text-3xl font-bold tracking-wider text-yellow-400">Porra 1ª División <span className="text-white font-light">ByZapa</span></h1></div></header>;
 const Footer = () => <footer className="bg-black text-white text-center p-4 mt-auto"><p className="text-sm text-gray-400">Creado por ByZapa</p></footer>;
 const Modal = ({ title, message, onClose }) => <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"><div className="bg-gray-800 rounded-lg shadow-xl p-6 w-11/12 max-w-md text-center border border-yellow-400"><h3 className="text-2xl font-bold text-yellow-400 mb-4">{title}</h3><p className="text-white mb-6">{message}</p><button onClick={onClose} className="bg-yellow-400 text-black font-bold py-2 px-6 rounded-lg hover:bg-yellow-300 transition-colors">Entendido</button></div></div>;
@@ -117,18 +61,14 @@ const PlayerDashboard = ({ loggedInPlayer, gameState, onShowModal }) => {
     const hasPicked = player.picks.some(p => p.jornada === jornada);
     const availableTeams = useMemo(() => { const pickedTeams = new Set(player.picks.map(p => p.team)); const teamsInJornada = new Set(JORNADAS_DATA[jornada]?.matches.flatMap(m => [m.home, m.away]) || []); return TEAMS.filter(t => !pickedTeams.has(t) && teamsInJornada.has(t) && !BANNED_TEAMS.includes(t)); }, [player.picks, jornada]);
     const [selectedTeam, setSelectedTeam] = useState('');
-    const handleSubmit = async (e) => { e.preventDefault(); if (selectedTeam) { const newPick = { jornada, team: selectedTeam }; const updatedPicks = [...player.picks, newPick]; const playerRef = doc(db, "players", player.id); await setDoc(playerRef, { picks: updatedPicks }, { merge: true }); onShowModal("¡Elección Guardada!", `Has elegido a ${selectedTeam} para la jornada ${jornada}. ¡Mucha suerte!`); setSelectedTeam(''); } };
+    const handleSubmit = async (e) => { e.preventDefault(); if (selectedTeam) { const newPick = { jornada, team: selectedTeam }; const updatedPicks = [...player.picks, newPick]; const playerRef = doc(db, "players", player.id); await updateDoc(playerRef, { picks: updatedPicks }); onShowModal("¡Elección Guardada!", `Has elegido a ${selectedTeam} para la jornada ${jornada}. ¡Mucha suerte!`); setSelectedTeam(''); } };
     return ( <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fade-in"> <div className="lg:col-span-2 space-y-8"> <div className="bg-gray-800 p-6 rounded-lg shadow-lg border border-gray-700"><div className="flex items-center mb-4"><UserIcon className="h-10 w-10 text-yellow-400 mr-4" /><div><h2 className="text-3xl font-bold text-white">{player.name}</h2>{player.status === 'activo' ? <div className="flex items-center text-green-400"><ShieldCheckIcon className="h-5 w-5 mr-1"/>Activo</div> : <div className="flex items-center text-red-500"><ExclamationCircleIcon className="h-5 w-5 mr-1"/>Eliminado en la jornada {player.jornadaEliminado}</div>}</div></div></div> {player.status === 'activo' && ( <div className="bg-gray-800 p-6 rounded-lg shadow-lg border border-gray-700"> <h3 className="text-2xl font-bold text-yellow-400 mb-4">Jornada {jornada}: Tu Elección</h3> {picksClosed ? <div className="text-center p-4 bg-gray-900 rounded-lg"><p className="text-yellow-400 text-lg">Las elecciones para la jornada {jornada} están cerradas.</p><p className="text-white mt-2">Tu elección fue: <strong className="font-bold">{player.picks.find(p=>p.jornada === jornada)?.team || 'No elegiste'}</strong></p></div> : hasPicked ? <div className="text-center p-4 bg-gray-900 rounded-lg"><p className="text-green-400 text-lg">¡Elección guardada para la Jornada {jornada}!</p><p className="text-white mt-2">Has elegido a: <strong className="font-bold">{player.picks.find(p=>p.jornada === jornada).team}</strong></p></div> : (<form onSubmit={handleSubmit}><p className="text-gray-300 mb-4">Elige un equipo ganador de los disponibles para esta jornada.</p><select value={selectedTeam} onChange={(e) => setSelectedTeam(e.target.value)} className="w-full p-3 bg-gray-900 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"><option value="">-- Selecciona un equipo --</option>{availableTeams.map(team => <option key={team} value={team}>{team}</option>)}</select><button type="submit" disabled={!selectedTeam} className="mt-4 w-full bg-yellow-400 text-black font-bold py-3 rounded-lg shadow-md hover:bg-yellow-300 disabled:bg-gray-600 disabled:cursor-not-allowed transition-colors">Confirmar Elección</button></form>)} </div> )} <div className="bg-gray-800 p-6 rounded-lg shadow-lg border border-gray-700"><h3 className="text-2xl font-bold text-yellow-400 mb-4">Tu Historial de Elecciones</h3>{player.picks.length > 0 ? <ul className="space-y-2">{player.picks.slice().reverse().map(pick => <li key={pick.jornada} className="flex justify-between items-center bg-gray-900 p-3 rounded-md"><span className="text-gray-400">Jornada {pick.jornada}</span><strong className="font-semibold text-white">{pick.team}</strong></li>)}</ul> : <p className="text-gray-400">Aún no has hecho ninguna elección.</p>}</div> </div> <div className="space-y-8"> <div className="bg-gray-900 p-6 rounded-lg shadow-lg border border-yellow-400/50 text-center"><h3 className="text-xl font-semibold text-yellow-400 mb-2">Bote Actual</h3><p className="text-5xl font-bold text-white">{((players.length * 20) * 0.85).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}</p><p className="text-sm text-gray-400 mt-2">Comisión (15%): {((players.length * 20) * 0.15).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}</p></div> <div className="bg-gray-800 p-6 rounded-lg shadow-lg border border-gray-700"><h3 className="text-2xl font-bold text-yellow-400 mb-4">Jugadores Activos</h3><ul className="space-y-3">{players.filter(p => p.status === 'activo').map(p => <li key={p.id} className="flex items-center text-white"><ShieldCheckIcon className="h-5 w-5 mr-3 text-green-400" />{p.name}</li>)}</ul></div> </div> </div> ); };
 
-const AdminPanel = ({ gameState, onProcessJornada, onAdvanceJornada, onShowModal, onAddPlayer }) => {
+const AdminPanel = ({ gameState, onProcessJornada, onAdvanceJornada, onShowModal, onAddPlayer, onRemovePick }) => {
     const { players, jornada, picksClosed } = gameState;
     const [newPlayerName, setNewPlayerName] = useState('');
     const [results, setResults] = useState(JORNADAS_DATA[jornada]?.matches.map(m => ({ matchId: m.id, winner: '' })) || []);
-
-    useEffect(() => {
-        setResults(JORNADAS_DATA[jornada]?.matches.map(m => ({ matchId: m.id, winner: '' })) || []);
-    }, [jornada]);
-
+    useEffect(() => { setResults(JORNADAS_DATA[jornada]?.matches.map(m => ({ matchId: m.id, winner: '' })) || []); }, [jornada]);
     const handleAddPlayer = (e) => { e.preventDefault(); if (newPlayerName.trim()) { onAddPlayer(newPlayerName.trim()); setNewPlayerName(''); } };
     const handleResultChange = (matchId, winner) => { setResults(prev => prev.map(r => r.matchId === matchId ? { ...r, winner } : r)); };
     const handleProcess = () => { const validResults = results.filter(r => r.winner); if (validResults.length === 0) { onShowModal("Error", "Debes introducir al menos un resultado para procesar la jornada."); return; } onProcessJornada(validResults); };
@@ -138,28 +78,37 @@ const AdminPanel = ({ gameState, onProcessJornada, onAdvanceJornada, onShowModal
         <div className="bg-gray-800 p-6 rounded-lg shadow-lg border border-gray-700 animate-fade-in">
             <h2 className="text-3xl font-bold text-yellow-400 mb-6 flex items-center"><CogIcon />Panel de Administración</h2>
             <div className="mb-8 bg-gray-900 p-4 rounded-lg"><h3 className="text-xl font-bold text-yellow-400 mb-3">Añadir Nuevo Jugador</h3><form onSubmit={handleAddPlayer} className="flex flex-col sm:flex-row gap-2"><input type="text" value={newPlayerName} onChange={(e) => setNewPlayerName(e.target.value)} placeholder="Nombre del amigo" className="flex-grow p-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" /><button type="submit" className="bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-500">Añadir</button></form></div>
-            
-            {/* Introducir Resultados */}
-            <div className="mb-8 bg-gray-900 p-4 rounded-lg">
-                <h3 className="text-xl font-bold text-yellow-400 mb-3">Introducir Resultados Jornada {jornada}</h3>
-                <div className="space-y-2">
-                    {JORNADAS_DATA[jornada]?.matches.map(match => (
-                        <div key={match.id} className="flex items-center justify-between text-sm">
-                            <span className="text-white">{match.home} vs {match.away}</span>
-                            <select onChange={(e) => handleResultChange(match.id, e.target.value)} className="p-1 bg-gray-800 border border-gray-600 rounded text-white">
-                                <option value="">-- Ganador --</option>
-                                <option value={match.home}>{match.home}</option>
-                                <option value={match.away}>{match.away}</option>
-                                <option value="DRAW">Empate</option>
-                            </select>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
+            <div className="mb-8 bg-gray-900 p-4 rounded-lg"><h3 className="text-xl font-bold text-yellow-400 mb-3">Introducir Resultados Jornada {jornada}</h3><div className="space-y-2">{JORNADAS_DATA[jornada]?.matches.map(match => (<div key={match.id} className="flex items-center justify-between text-sm"><span className="text-white">{match.home} vs {match.away}</span><select onChange={(e) => handleResultChange(match.id, e.target.value)} className="p-1 bg-gray-800 border border-gray-600 rounded text-white"><option value="">-- Ganador --</option><option value={match.home}>{match.home}</option><option value={match.away}>{match.away}</option><option value="DRAW">Empate</option></select></div>))}</div></div>
             <div className="space-y-4 mb-6"><p className="text-white">Jornada Actual: <strong className="text-xl">{jornada}</strong></p><p className="text-white">Estado de Elecciones: <strong className={picksClosed ? 'text-red-500' : 'text-green-400'}>{picksClosed ? 'Cerradas' : 'Abiertas'}</strong></p></div>
             <div className="flex flex-col sm:flex-row gap-4"><button onClick={handleProcess} disabled={picksClosed} className="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-500 disabled:bg-gray-600 transition-colors">Procesar Jornada {jornada}</button><button onClick={handleAdvance} disabled={!picksClosed} className="bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-500 disabled:bg-gray-600 transition-colors">Avanzar a Jornada {jornada + 1}</button></div>
-            <div className="mt-8"><h3 className="text-2xl font-bold text-yellow-400 mb-4">Lista de Jugadores</h3><div className="overflow-x-auto"><table className="w-full text-left text-white"><thead className="bg-gray-900 text-yellow-400"><tr><th className="p-3">Nombre</th><th className="p-3">Estado</th><th className="p-3">J. Eliminado</th><th className="p-3">Elección (J{jornada})</th></tr></thead><tbody>{players.map(p => <tr key={p.id} className="border-b border-gray-700 hover:bg-gray-700/50"><td className="p-3">{p.name}</td><td className={`p-3 font-semibold ${p.status === 'activo' ? 'text-green-400' : 'text-red-500'}`}>{p.status}</td><td className="p-3">{p.jornadaEliminado || '-'}</td><td className="p-3">{p.picks.find(pick => pick.jornada === jornada)?.team || <span className="text-gray-500">Sin elección</span>}</td></tr>)}</tbody></table></div></div>
+            
+            <div className="mt-8">
+                <h3 className="text-2xl font-bold text-yellow-400 mb-4">Lista de Jugadores y Elecciones</h3>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left text-white">
+                        <thead className="bg-gray-900 text-yellow-400"><tr><th className="p-3">Nombre</th><th className="p-3">Estado</th><th className="p-3">Elección (J{jornada})</th><th className="p-3">Acciones</th></tr></thead>
+                        <tbody>
+                            {players.map(p => {
+                                const currentPick = p.picks.find(pick => pick.jornada === jornada);
+                                return (
+                                    <tr key={p.id} className="border-b border-gray-700 hover:bg-gray-700/50">
+                                        <td className="p-3">{p.name}</td>
+                                        <td className={`p-3 font-semibold ${p.status === 'activo' ? 'text-green-400' : 'text-red-500'}`}>{p.status}</td>
+                                        <td className="p-3">{currentPick?.team || <span className="text-gray-500">Sin elección</span>}</td>
+                                        <td className="p-3">
+                                            {currentPick && !picksClosed && (
+                                                <button onClick={() => onRemovePick(p.id)} className="bg-red-700 text-white text-xs font-bold py-1 px-2 rounded hover:bg-red-600">
+                                                    Anular Elección
+                                                </button>
+                                            )}
+                                        </td>
+                                    </tr>
+                                )
+                            })}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     );
 };
@@ -185,35 +134,22 @@ export default function App() {
   const handleCloseModal = () => setModal({ isOpen: false, title: '', message: '' });
   const handleAddPlayer = async (name) => { try { await addDoc(collection(db, "players"), { name: name, status: 'activo', picks: [], jornadaEliminado: null }); handleShowModal("¡Jugador Añadido!", `Se ha añadido a ${name} a la porra.`); } catch (error) { handleShowModal("Error", "No se pudo añadir al jugador."); console.error("Error adding document: ", error); } };
   
-  const handleProcessJornada = async (results) => {
-    const { players, jornada } = gameState;
-    const batch = writeBatch(db);
-    let eliminados = [];
-    players.forEach(player => {
-        if (player.status !== 'activo') return;
-        let shouldBeEliminated = true;
-        const pick = player.picks.find(p => p.jornada === jornada);
-        if (pick) {
-            const matchOfPick = JORNADAS_DATA[jornada].matches.find(m => m.home === pick.team || m.away === pick.team);
-            if (matchOfPick) {
-                const result = results.find(r => r.matchId === matchOfPick.id);
-                if (result && result.winner === pick.team) {
-                    shouldBeEliminated = false;
-                }
-            }
-        }
-        if (shouldBeEliminated) {
-            eliminados.push(player.name);
-            const playerRef = doc(db, "players", player.id);
-            batch.update(playerRef, { status: 'eliminado', jornadaEliminado: jornada });
-        }
-    });
-    const gameStateRef = doc(db, "game", "state");
-    batch.update(gameStateRef, { picksClosed: true });
-    await batch.commit();
-    handleShowModal("Jornada Procesada", `Jugadores eliminados: ${eliminados.join(', ') || 'Ninguno'}. Las elecciones están cerradas.`);
+  const handleRemovePick = async (playerId) => {
+    const player = gameState.players.find(p => p.id === playerId);
+    if (!player) return;
+    
+    const newPicks = player.picks.filter(p => p.jornada !== gameState.jornada);
+    const playerRef = doc(db, "players", playerId);
+    try {
+        await updateDoc(playerRef, { picks: newPicks });
+        handleShowModal("Elección Anulada", `Se ha borrado la elección de ${player.name} para la jornada ${gameState.jornada}.`);
+    } catch (error) {
+        handleShowModal("Error", "No se pudo anular la elección.");
+        console.error("Error updating player pick: ", error);
+    }
   };
-  
+
+  const handleProcessJornada = async (results) => { const { players, jornada } = gameState; const batch = writeBatch(db); let eliminados = []; players.forEach(player => { if (player.status !== 'activo') return; let shouldBeEliminated = true; const pick = player.picks.find(p => p.jornada === jornada); if (pick) { const matchOfPick = JORNADAS_DATA[jornada].matches.find(m => m.home === pick.team || m.away === pick.team); if (matchOfPick) { const result = results.find(r => r.matchId === matchOfPick.id); if (result && result.winner === pick.team) { shouldBeEliminated = false; } } } if (shouldBeEliminated) { eliminados.push(player.name); const playerRef = doc(db, "players", player.id); batch.update(playerRef, { status: 'eliminado', jornadaEliminado: jornada }); } }); const gameStateRef = doc(db, "game", "state"); batch.update(gameStateRef, { picksClosed: true }); await batch.commit(); handleShowModal("Jornada Procesada", `Jugadores eliminados: ${eliminados.join(', ') || 'Ninguno'}. Las elecciones están cerradas.`); };
   const handleAdvanceJornada = async () => { const gameStateRef = doc(db, "game", "state"); await setDoc(gameStateRef, { jornada: gameState.jornada + 1, picksClosed: false }, { merge: true }); };
   const handleGoToWelcome = () => { setLoggedInPlayer(null); setSelectedPlayerId(''); setScreen('welcome'); }
 
@@ -221,7 +157,7 @@ export default function App() {
     if (isLoading) return <div className="text-center text-2xl text-yellow-400 mt-16">Conectando con la base de datos...</div>;
     switch (screen) {
       case 'dashboard': return loggedInPlayer ? <PlayerDashboard loggedInPlayer={loggedInPlayer} gameState={gameState} onShowModal={handleShowModal} /> : <div className="text-center text-xl text-red-500">Error: Selecciona un jugador para continuar.</div>;
-      case 'admin': return <AdminPanel gameState={gameState} onProcessJornada={handleProcessJornada} onAdvanceJornada={handleAdvanceJornada} onShowModal={handleShowModal} onAddPlayer={handleAddPlayer} />;
+      case 'admin': return <AdminPanel gameState={gameState} onProcessJornada={handleProcessJornada} onAdvanceJornada={handleAdvanceJornada} onShowModal={handleShowModal} onAddPlayer={handleAddPlayer} onRemovePick={handleRemovePick} />;
       case 'welcome': default: return <WelcomeScreen onEnter={handleEnterGame} players={gameState.players} selectedPlayerId={selectedPlayerId} setSelectedPlayerId={setSelectedPlayerId} />;
     }
   };
