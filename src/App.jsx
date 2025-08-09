@@ -11,7 +11,7 @@ import {
     sendPasswordResetEmail
 } from "firebase/auth";
 
-// --- TUS CLAVES DE FIREBASE ---
+// --- TUS CLAVES DE FIREBASE (Leídas de forma segura desde Vercel) ---
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_API_KEY,
   authDomain: import.meta.env.VITE_AUTH_DOMAIN,
