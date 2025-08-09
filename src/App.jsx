@@ -29,43 +29,34 @@ const TEAMS = ["Alavés", "Athletic Club", "Atlético de Madrid", "FC Barcelona"
 const BANNED_TEAMS = ["Real Madrid", "FC Barcelona"];
 const JORNADAS_DATA = { 1: { matches: [ { id: 'J1-M1', home: 'Athletic Club', away: 'Getafe' }, { id: 'J1-M2', home: 'Betis', away: 'Girona' }, { id: 'J1-M3', home: 'Mallorca', away: 'Real Madrid' }, { id: 'J1-M4', home: 'Real Sociedad', away: 'Rayo Vallecano' }, { id: 'J1-M5', home: 'Valencia', away: 'FC Barcelona' }, { id: 'J1-M6', home: 'Villarreal', away: 'Atlético de Madrid' }, { id: 'J1-M7', home: 'Osasuna', away: 'Leganés' }, { id: 'J1-M8', home: 'Celta Vigo', away: 'Alavés' }, { id: 'J1-M9', home: 'Las Palmas', away: 'Sevilla' }, { id: 'J1-M10', home: 'Valladolid', away: 'Espanyol' } ], results: [ /* Los resultados se añadirían aquí al finalizar */ ] }, 2: { matches: [ { id: 'J2-M1', home: 'Alavés', away: 'Betis' }, { id: 'J2-M2', home: 'Atlético de Madrid', away: 'Athletic Club' }, { id: 'J2-M3', home: 'FC Barcelona', away: 'Valladolid' }, { id: 'J2-M4', home: 'Getafe', away: 'Rayo Vallecano' }, { id: 'J2-M5', home: 'Girona', away: 'Osasuna' }, { id: 'J2-M6', home: 'Real Madrid', away: 'Real Sociedad' }, { id: 'J2-M7', home: 'Sevilla', away: 'Celta Vigo' }, { id: 'J2-M8', home: 'Espanyol', away: 'Mallorca' }, { id: 'J2-M9', home: 'Leganés', away: 'Las Palmas' }, { id: 'J2-M10', home: 'Valencia', away: 'Villarreal' } ], results: [] }, 3: { matches: [ { id: 'J3-M1', home: 'Athletic Club', away: 'Valencia' }, { id: 'J3-M2', home: 'Betis', away: 'Getafe' }, { id: 'J3-M3', home: 'Celta Vigo', away: 'Villarreal' }, { id: 'J3-M4', home: 'Girona', away: 'Atlético de Madrid' }, { id: 'J3-M5', home: 'Las Palmas', away: 'Rayo Vallecano' }, { id: 'J3-M6', home: 'Mallorca', away: 'FC Barcelona' }, { id: 'J3-M7', home: 'Osasuna', away: 'Sevilla' }, { id: 'J3-M8', home: 'Real Madrid', away: 'Espanyol' }, { id: 'J3-M9', home: 'Real Sociedad', away: 'Alavés' }, { id: 'J3-M10', home: 'Valladolid', away: 'Leganés' } ], results: [] }, 4: { matches: [ { id: 'J4-M1', home: 'Alavés', away: 'Las Palmas' }, { id: 'J4-M2', home: 'Atlético de Madrid', away: 'Real Sociedad' }, { id: 'J4-M3', home: 'FC Barcelona', away: 'Girona' }, { id: 'J4-M4', home: 'Getafe', away: 'Mallorca' }, { id: 'J4-M5', home: 'Rayo Vallecano', away: 'Valladolid' }, { id: 'J4-M6', home: 'Sevilla', away: 'Real Madrid' }, { id: 'J4-M7', home: 'Valencia', away: 'Celta Vigo' }, { id: 'J4-M8', home: 'Villarreal', away: 'Betis' }, { id: 'J4-M9', home: 'Espanyol', away: 'Athletic Club' }, { id: 'J4-M10', home: 'Leganés', away: 'Osasuna' } ], results: [] }};
 
-// --- COMPONENTES DE UI con NUEVO DISEÑO ---
-
-const Card = ({ children, className = '', isHoverable = false }) => (
-    <div className={`bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-lg transition-all duration-300 ${isHoverable ? 'hover:bg-white/10 hover:border-white/20' : ''} ${className}`}>
-        {children}
-    </div>
-);
+// --- COMPONENTES DE UI con DISEÑO GLASSMORPHISM ---
 
 const Header = () => (
-    <header className="bg-transparent text-white p-4 sticky top-0 z-40">
+    <header className="p-4">
         <div className="container mx-auto flex items-center justify-center gap-3">
-            <TrophyIcon className="h-8 w-8 text-amber-300" />
-            <h1 className="text-2xl md:text-3xl font-bold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-amber-400">
+            <h1 className="text-3xl md:text-4xl font-black gold-gradient bg-clip-text text-transparent tracking-wide">
                 PORRA BYZAPA
             </h1>
         </div>
     </header>
 );
 
-const Footer = () => <footer className="bg-transparent text-white text-center p-6 mt-auto"><p className="text-sm text-white/30">Creado por ByZapa</p></footer>;
+const Footer = () => <footer className="text-center p-6 mt-auto"><p className="text-sm text-gray-500">Creado por ByZapa</p></footer>;
 
-const Modal = ({ title, message, onClose }) => <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4"><Card className="w-full max-w-md text-center"><div className="p-6"><h3 className="text-2xl font-bold text-amber-300 mb-4">{title}</h3><p className="text-white/80 mb-6">{message}</p><button onClick={onClose} className="bg-gradient-to-r from-amber-400 to-yellow-500 text-black font-bold py-2 px-6 rounded-lg hover:opacity-90 transition-all duration-300 transform hover:scale-105">Entendido</button></div></Card></div>;
+const Modal = ({ title, message, onClose }) => <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4"><div className="glass-effect rounded-xl p-8 w-full max-w-md text-center"><h3 className="text-2xl font-bold mb-4 gold-gradient bg-clip-text text-transparent">{title}</h3><p className="text-white mb-6">{message}</p><button onClick={onClose} className="gold-gradient text-black font-bold py-2 px-8 rounded-full hover:scale-105 transition-transform">Entendido</button></div></div>;
 
 const WelcomeScreen = ({ onEnter, players, selectedPlayerId, setSelectedPlayerId }) => (
     <div className="text-center p-4 max-w-2xl mx-auto animate-fade-in flex flex-col items-center justify-center min-h-[70vh]">
-        <h2 className="text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white to-amber-300 mb-4">Bienvenido</h2>
-        <p className="text-white/60 mb-8 text-lg">Selecciona tu perfil para empezar a jugar.</p>
-        <Card className="w-full">
-            <div className="p-6 md:p-8">
-                <h3 className="text-2xl font-semibold text-white mb-4">¿Quién eres?</h3>
-                <select value={selectedPlayerId} onChange={(e) => setSelectedPlayerId(e.target.value)} className="w-full p-4 bg-black/20 border border-white/20 rounded-lg text-white text-lg focus:outline-none focus:ring-2 focus:ring-amber-400 mb-6 transition-all">
-                    <option value="">-- Selecciona tu nombre --</option>
-                    {players.map(player => (<option key={player.id} value={player.id} className="bg-gray-800">{player.name}</option>))}
-                </select>
-                <button onClick={onEnter} disabled={!selectedPlayerId} className="w-full bg-gradient-to-r from-amber-400 to-yellow-500 text-black font-bold py-4 px-8 rounded-lg shadow-lg hover:shadow-yellow-400/20 transform hover:scale-105 transition-all duration-300 disabled:from-gray-600 disabled:to-gray-700 disabled:text-gray-400 disabled:cursor-not-allowed disabled:shadow-none">Entrar al Juego</button>
-            </div>
-        </Card>
+        <h2 className="text-6xl font-black gold-gradient bg-clip-text text-transparent mb-4">Bienvenido</h2>
+        <p className="text-gray-400 mb-8 text-lg">Selecciona tu perfil para empezar a jugar.</p>
+        <div className="glass-effect rounded-xl p-8 w-full">
+            <h3 className="text-2xl font-semibold text-white mb-4">¿Quién eres?</h3>
+            <select value={selectedPlayerId} onChange={(e) => setSelectedPlayerId(e.target.value)} className="w-full p-3 bg-gray-900/80 border border-gray-700 rounded-lg text-white text-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 mb-6">
+                <option value="" className="bg-gray-800">-- Selecciona tu nombre --</option>
+                {players.map(player => (<option key={player.id} value={player.id} className="bg-gray-800">{player.name}</option>))}
+            </select>
+            <button onClick={onEnter} disabled={!selectedPlayerId} className="w-full gold-gradient text-black font-bold py-3 px-8 rounded-full shadow-lg shadow-yellow-500/20 transform hover:scale-105 transition-all duration-300 disabled:bg-gray-700 disabled:text-gray-400 disabled:cursor-not-allowed disabled:shadow-none">Entrar al Juego</button>
+        </div>
     </div>
 );
 
@@ -79,34 +70,23 @@ const PlayerDashboard = ({ loggedInPlayer, gameState, onShowModal }) => {
     const handleSubmit = async (e) => { e.preventDefault(); if (selectedTeam) { const newPick = { jornada, team: selectedTeam }; const updatedPicks = [...player.picks, newPick]; const playerRef = doc(db, "players", player.id); await updateDoc(playerRef, { picks: updatedPicks }); onShowModal("¡Elección Guardada!", `Has elegido a ${selectedTeam} para la jornada ${jornada}. ¡Mucha suerte!`); setSelectedTeam(''); } };
     
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in">
-            {/* Bento Grid Layout */}
-            <Card className="lg:col-span-2 p-6 flex items-center gap-6">
-                <UserIcon className="h-16 w-16 text-amber-300 flex-shrink-0" />
-                <div>
-                    <h2 className="text-4xl font-bold text-white">{player.name}</h2>
-                    {player.status === 'activo' ? <div className="flex items-center text-green-400 font-semibold mt-1"><ShieldCheckIcon className="h-5 w-5 mr-2"/>Activo</div> : <div className="flex items-center text-red-500 font-semibold mt-1"><ExclamationCircleIcon className="h-5 w-5 mr-2"/>Eliminado en J.{player.jornadaEliminado}</div>}
-                </div>
-            </Card>
-
-            <Card className="text-center p-6 flex flex-col justify-center">
-                <h3 className="text-xl font-semibold text-amber-300 mb-1">Bote Actual</h3>
-                <p className="text-5xl font-extrabold text-white">{((players.length * 20) * 0.85).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}</p>
-            </Card>
-
-            {player.status === 'activo' && (
-                <Card className="lg:col-span-3">
-                    <div className="p-6">
-                        <h3 className="text-2xl font-bold text-amber-300 mb-4">Jornada {jornada}: Tu Elección</h3>
-                        {picksClosed ? <div className="text-center p-4 bg-black/20 rounded-lg"><p className="text-amber-400 text-lg">Las elecciones para esta jornada están cerradas.</p><p className="text-white/70 mt-2">Tu elección fue: <strong className="font-bold text-white">{player.picks.find(p=>p.jornada === jornada)?.team || 'No elegiste'}</strong></p></div>
-                        : hasPicked ? <div className="text-center p-4 bg-black/20 rounded-lg"><p className="text-green-400 text-lg">¡Elección guardada!</p><p className="text-white/70 mt-2">Has elegido a: <strong className="font-bold text-white">{player.picks.find(p=>p.jornada === jornada).team}</strong></p></div>
-                        : (<form onSubmit={handleSubmit}><p className="text-white/60 mb-4">Elige un equipo ganador para esta jornada.</p><select value={selectedTeam} onChange={(e) => setSelectedTeam(e.target.value)} className="w-full p-3 bg-black/20 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-amber-400 transition-all"><option value="" className="bg-gray-800">-- Selecciona un equipo --</option>{availableTeams.map(team => <option key={team} value={team} className="bg-gray-800">{team}</option>)}</select><button type="submit" disabled={!selectedTeam} className="mt-4 w-full bg-gradient-to-r from-amber-400 to-yellow-500 text-black font-bold py-3 rounded-lg shadow-lg hover:shadow-yellow-400/20 transform hover:scale-105 transition-all duration-300 disabled:from-gray-600 disabled:to-gray-700 disabled:text-gray-400 disabled:cursor-not-allowed">Confirmar Elección</button></form>)}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fade-in">
+            <div className="lg:col-span-2 space-y-8">
+                <div className="glass-effect rounded-xl p-6"><div className="flex items-center gap-4"><UserIcon className="h-12 w-12 text-yellow-400" /><div><h2 className="text-3xl font-bold text-white">{player.name}</h2>{player.status === 'activo' ? <div className="flex items-center text-green-400 font-semibold"><ShieldCheckIcon className="h-5 w-5 mr-2"/>Activo</div> : <div className="flex items-center text-red-500 font-semibold"><ExclamationCircleIcon className="h-5 w-5 mr-2"/>Eliminado en J.{player.jornadaEliminado}</div>}</div></div></div>
+                {player.status === 'activo' && (
+                    <div className="glass-effect rounded-xl p-6">
+                        <h3 className="text-2xl font-bold mb-4 gold-gradient bg-clip-text text-transparent">Jornada {jornada}: Tu Elección</h3>
+                        {picksClosed ? <div className="text-center p-4 bg-black/20 rounded-lg"><p className="text-yellow-400 text-lg">Las elecciones están cerradas.</p><p className="text-gray-300 mt-2">Tu elección: <strong className="font-bold text-white">{player.picks.find(p=>p.jornada === jornada)?.team || 'N/A'}</strong></p></div>
+                        : hasPicked ? <div className="text-center p-4 bg-black/20 rounded-lg"><p className="text-green-400 text-lg">¡Elección guardada!</p><p className="text-gray-300 mt-2">Has elegido a: <strong className="font-bold text-white">{player.picks.find(p=>p.jornada === jornada).team}</strong></p></div>
+                        : (<form onSubmit={handleSubmit}><p className="text-gray-400 mb-4">Elige un equipo ganador para esta jornada.</p><select value={selectedTeam} onChange={(e) => setSelectedTeam(e.target.value)} className="w-full p-3 bg-gray-900/80 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"><option value="" className="bg-gray-800">-- Selecciona un equipo --</option>{availableTeams.map(team => <option key={team} value={team} className="bg-gray-800">{team}</option>)}</select><button type="submit" disabled={!selectedTeam} className="mt-4 w-full gold-gradient text-black font-bold py-3 rounded-full shadow-lg shadow-yellow-500/20 transform hover:scale-105 transition-all duration-300 disabled:bg-gray-700 disabled:text-gray-400 disabled:cursor-not-allowed">Confirmar Elección</button></form>)}
                     </div>
-                </Card>
-            )}
-
-            <Card className="lg:col-span-2"><div className="p-6"><h3 className="text-2xl font-bold text-amber-300 mb-4">Historial</h3>{player.picks.length > 0 ? <ul className="space-y-3">{player.picks.slice().reverse().map(pick => <li key={pick.jornada} className="flex justify-between items-center bg-black/20 p-3 rounded-lg"><span className="text-white/50">Jornada {pick.jornada}</span><strong className="font-semibold text-white">{pick.team}</strong></li>)}</ul> : <p className="text-white/60">Aún no has hecho ninguna elección.</p>}</div></Card>
-            <Card><div className="p-6"><h3 className="text-2xl font-bold text-amber-300 mb-4">Activos</h3><ul className="space-y-3">{players.filter(p => p.status === 'activo').map(p => <li key={p.id} className="flex items-center text-white bg-black/20 p-3 rounded-lg"><ShieldCheckIcon className="h-5 w-5 mr-3 text-green-400" />{p.name}</li>)}</ul></div></Card>
+                )}
+                <div className="glass-effect rounded-xl p-6"><h3 className="text-2xl font-bold mb-4 gold-gradient bg-clip-text text-transparent">Historial</h3>{player.picks.length > 0 ? <ul className="space-y-2">{player.picks.slice().reverse().map(pick => <li key={pick.jornada} className="flex justify-between items-center bg-black/20 p-3 rounded-md"><span className="text-gray-400">Jornada {pick.jornada}</span><strong className="font-semibold text-white">{pick.team}</strong></li>)}</ul> : <p className="text-gray-400">Aún no has hecho ninguna elección.</p>}</div>
+            </div>
+            <div className="space-y-8">
+                <div className="glass-effect rounded-xl p-6 text-center"><h3 className="text-xl font-semibold mb-2 gold-gradient bg-clip-text text-transparent">Bote Actual</h3><p className="text-5xl font-bold text-white">{((players.length * 20) * 0.85).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}</p><p className="text-sm text-gray-500 mt-2">Comisión: {((players.length * 20) * 0.15).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}</p></div>
+                <div className="glass-effect rounded-xl p-6"><h3 className="text-2xl font-bold mb-4 gold-gradient bg-clip-text text-transparent">Jugadores Activos</h3><ul className="space-y-3">{players.filter(p => p.status === 'activo').map(p => <li key={p.id} className="flex items-center text-white bg-black/20 p-3 rounded-md"><ShieldCheckIcon className="h-5 w-5 mr-3 text-green-400" />{p.name}</li>)}</ul></div>
+            </div>
         </div>
     );
 };
@@ -122,18 +102,17 @@ const AdminPanel = ({ gameState, onProcessJornada, onAdvanceJornada, onShowModal
     const handleAdvance = () => { if (!JORNADAS_DATA[jornada + 1]) { onShowModal("Error", "No hay datos para la siguiente jornada."); return; } onAdvanceJornada(); };
 
     return (
-        <Card className="animate-fade-in"><div className="p-6">
-            <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-amber-400 mb-6 flex items-center gap-3"><CogIcon className="h-8 w-8" />Panel de Administración</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <Card className="bg-black/20"><div className="p-4"><h3 className="text-xl font-bold text-amber-300 mb-3">Añadir Jugador</h3><form onSubmit={handleAddPlayer} className="flex gap-2"><input type="text" value={newPlayerName} onChange={(e) => setNewPlayerName(e.target.value)} placeholder="Nombre del amigo" className="flex-grow p-2 bg-black/20 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-amber-400" /><button type="submit" className="bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-500 transition-colors">Añadir</button></form></div></Card>
-                <Card className="bg-black/20"><div className="p-4"><h3 className="text-xl font-bold text-amber-300 mb-3">Control de Jornada</h3><div className="flex flex-col sm:flex-row gap-4"><button onClick={handleProcess} disabled={picksClosed} className="flex-1 bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-500 disabled:bg-gray-600 transition-colors">Procesar J.{jornada}</button><button onClick={handleAdvance} disabled={!picksClosed} className="flex-1 bg-purple-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-purple-500 disabled:bg-gray-600 transition-colors">Avanzar a J.{jornada + 1}</button></div></div></Card>
-            </div>
-            <Card className="bg-black/20 mb-6"><div className="p-4"><h3 className="text-xl font-bold text-amber-300 mb-3">Introducir Resultados Jornada {jornada}</h3><div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">{JORNADAS_DATA[jornada]?.matches.map(match => (<div key={match.id} className="flex items-center justify-between text-sm bg-black/20 p-2 rounded-lg"><span className="text-white/70 truncate pr-2">{match.home} vs {match.away}</span><select onChange={(e) => handleResultChange(match.id, e.target.value)} className="p-1 bg-gray-700 border border-gray-600 rounded text-white text-xs"><option value="" className="bg-gray-800">Ganador</option><option value={match.home} className="bg-gray-800">{match.home}</option><option value={match.away} className="bg-gray-800">{match.away}</option><option value="DRAW" className="bg-gray-800">Empate</option></select></div>))}</div></div></Card>
-            <div><h3 className="text-2xl font-bold text-amber-300 mb-4">Lista de Jugadores</h3><div className="overflow-x-auto"><table className="w-full text-left text-white">
-                <thead className="border-b border-white/20"><tr className="text-white/50 text-sm"><th className="p-3">Nombre</th><th className="p-3">Estado</th><th className="p-3">Elección (J{jornada})</th><th className="p-3 text-right">Acciones</th></tr></thead>
-                <tbody>{players.map(p => { const currentPick = p.picks.find(pick => pick.jornada === jornada); return ( <tr key={p.id} className="border-b border-white/10 hover:bg-white/5"><td className="p-3 font-semibold">{p.name}</td><td className={`p-3 font-semibold ${p.status === 'activo' ? 'text-green-400' : 'text-red-500'}`}>{p.status}</td><td className="p-3">{currentPick?.team || <span className="text-white/40">Sin elección</span>}</td><td className="p-3 text-right">{currentPick && !picksClosed && (<button onClick={() => onRemovePick(p.id)} className="bg-red-700/80 text-white text-xs font-bold p-2 rounded-full hover:bg-red-600 transition-colors"><TrashIcon /></button>)}</td></tr> )})}</tbody>
+        <div className="glass-effect rounded-xl p-6 animate-fade-in">
+            <h2 className="text-3xl font-bold mb-6 flex items-center gap-3 gold-gradient bg-clip-text text-transparent"><CogIcon className="h-8 w-8 text-yellow-400" />Panel de Administración</h2>
+            <div className="mb-8 bg-black/20 p-4 rounded-lg"><h3 className="text-xl font-bold text-yellow-400 mb-3">Añadir Jugador</h3><form onSubmit={handleAddPlayer} className="flex gap-2"><input type="text" value={newPlayerName} onChange={(e) => setNewPlayerName(e.target.value)} placeholder="Nombre del amigo" className="flex-grow p-2 bg-gray-900/80 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" /><button type="submit" className="bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-500 transition-colors">Añadir</button></form></div>
+            <div className="mb-8 bg-black/20 p-4 rounded-lg"><h3 className="text-xl font-bold text-yellow-400 mb-3">Introducir Resultados Jornada {jornada}</h3><div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">{JORNADAS_DATA[jornada]?.matches.map(match => (<div key={match.id} className="flex items-center justify-between text-sm bg-gray-900/80 p-2 rounded-lg"><span className="text-gray-300 truncate pr-2">{match.home} vs {match.away}</span><select onChange={(e) => handleResultChange(match.id, e.target.value)} className="p-1 bg-gray-700 border border-gray-600 rounded text-white text-xs"><option value="" className="bg-gray-800">Ganador</option><option value={match.home} className="bg-gray-800">{match.home}</option><option value={match.away} className="bg-gray-800">{match.away}</option><option value="DRAW" className="bg-gray-800">Empate</option></select></div>))}</div></div>
+            <div className="space-y-4 mb-6"><p className="text-white">Jornada Actual: <strong className="text-xl text-yellow-400">{jornada}</strong></p><p className="text-white">Estado de Elecciones: <strong className={picksClosed ? 'text-red-500' : 'text-green-400'}>{picksClosed ? 'Cerradas' : 'Abiertas'}</strong></p></div>
+            <div className="flex flex-col sm:flex-row gap-4"><button onClick={handleProcess} disabled={picksClosed} className="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-500 disabled:bg-gray-600 transition-colors">Procesar Jornada {jornada}</button><button onClick={handleAdvance} disabled={!picksClosed} className="bg-purple-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-purple-500 disabled:bg-gray-600 transition-colors">Avanzar a Jornada {jornada + 1}</button></div>
+            <div className="mt-8"><h3 className="text-2xl font-bold mb-4 gold-gradient bg-clip-text text-transparent">Lista de Jugadores</h3><div className="overflow-x-auto"><table className="w-full text-left text-white">
+                <thead className="border-b border-gray-700"><tr className="text-gray-400 text-sm"><th className="p-3">Nombre</th><th className="p-3">Estado</th><th className="p-3">Elección (J{jornada})</th><th className="p-3 text-right">Acciones</th></tr></thead>
+                <tbody>{players.map(p => { const currentPick = p.picks.find(pick => pick.jornada === jornada); return ( <tr key={p.id} className="border-b border-gray-800 hover:bg-gray-900/50"><td className="p-3 font-semibold">{p.name}</td><td className={`p-3 font-semibold ${p.status === 'activo' ? 'text-green-400' : 'text-red-500'}`}>{p.status}</td><td className="p-3">{currentPick?.team || <span className="text-gray-500">Sin elección</span>}</td><td className="p-3 text-right">{currentPick && !picksClosed && (<button onClick={() => onRemovePick(p.id)} className="bg-red-700 text-white text-xs font-bold p-2 rounded-full hover:bg-red-600 transition-colors"><TrashIcon /></button>)}</td></tr> )})}</tbody>
             </table></div></div>
-        </div></Card>
+        </div>
     );
 };
 
@@ -163,7 +142,7 @@ export default function App() {
   const handleGoToWelcome = () => { setLoggedInPlayer(null); setSelectedPlayerId(''); setScreen('welcome'); }
 
   const renderScreen = () => {
-    if (isLoading) return <div className="text-center text-2xl text-amber-300 mt-16">Conectando...</div>;
+    if (isLoading) return <div className="text-center text-2xl text-yellow-400 mt-16">Conectando con la base de datos...</div>;
     switch (screen) {
       case 'dashboard': return loggedInPlayer ? <PlayerDashboard loggedInPlayer={loggedInPlayer} gameState={gameState} onShowModal={handleShowModal} /> : <div className="text-center text-xl text-red-500">Error: Selecciona un jugador para continuar.</div>;
       case 'admin': return <AdminPanel gameState={gameState} onProcessJornada={handleProcessJornada} onAdvanceJornada={handleAdvanceJornada} onShowModal={handleShowModal} onAddPlayer={handleAddPlayer} onRemovePick={handleRemovePick} />;
@@ -172,62 +151,25 @@ export default function App() {
   };
 
   return (
-    <div className="bg-slate-900 text-white min-h-screen font-sans flex flex-col overflow-hidden">
-      {/* Aurora Background Effect */}
-      <div className="aurora-bg">
-          <div className="aurora-bg__blur-1"></div>
-          <div className="aurora-bg__blur-2"></div>
-          <div className="aurora-bg__blur-3"></div>
-      </div>
-      
+    <div className="bg-black text-white min-h-screen font-sans flex flex-col">
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&display=swap');
-        body { font-family: 'Sora', sans-serif; }
-        .animate-fade-in { animation: fadeIn 0.7s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        
-        /* Aurora Background Styles */
-        .aurora-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
-        .aurora-bg__blur-1, .aurora-bg__blur-2, .aurora-bg__blur-3 {
-            position: absolute;
-            filter: blur(100px);
-            opacity: 0.4;
-            border-radius: 50%;
-        }
-        .aurora-bg__blur-1 {
-            width: 400px; height: 400px;
-            background: rgba(253, 224, 71, 0.3); /* yellow */
-            top: -50px; left: -100px;
-            animation: move1 20s infinite alternate;
-        }
-        .aurora-bg__blur-2 {
-            width: 500px; height: 500px;
-            background: rgba(59, 130, 246, 0.3); /* blue */
-            bottom: -100px; right: -150px;
-            animation: move2 25s infinite alternate;
-        }
-        .aurora-bg__blur-3 {
-            width: 300px; height: 300px;
-            background: rgba(168, 85, 247, 0.3); /* purple */
-            bottom: 50px; left: 100px;
-            animation: move3 15s infinite alternate;
-        }
-
-        @keyframes move1 { from { transform: translate(0, 0) rotate(0deg); } to { transform: translate(100px, 50px) rotate(30deg); } }
-        @keyframes move2 { from { transform: translate(0, 0) rotate(0deg); } to { transform: translate(-150px, -50px) rotate(-40deg); } }
-        @keyframes move3 { from { transform: translate(0, 0) rotate(0deg); } to { transform: translate(50px, -100px) rotate(20deg); } }
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap');
+        body { font-family: 'Roboto', sans-serif; }
+        .animate-fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .gold-gradient { background: linear-gradient(135deg, #FFD700, #FFA500); }
+        .glass-effect { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
       `}</style>
-      
       <div className="relative z-10 flex flex-col min-h-screen">
         {modal.isOpen && <Modal title={modal.title} message={modal.message} onClose={handleCloseModal} />}
         <Header />
-        <nav className="bg-black/10 backdrop-blur-lg p-2 sticky top-0 z-30 mb-4 border-b border-t border-white/10">
+        <nav className="bg-black/50 backdrop-blur-sm py-2 sticky top-0 z-30 mb-4 border-b border-t border-gray-800">
             <div className="container mx-auto flex justify-center items-center gap-2 md:gap-6">
-                <button onClick={handleGoToWelcome} className="px-4 py-2 text-sm md:text-base rounded-lg transition-colors text-white/70 hover:bg-white/10 hover:text-white">Inicio / Cambiar Jugador</button>
-                <button onClick={() => setScreen('admin')} className="px-4 py-2 text-sm md:text-base rounded-lg transition-colors text-white/70 hover:bg-white/10 hover:text-white">Admin</button>
+                <button onClick={handleGoToWelcome} className="px-4 py-2 text-sm md:text-base rounded-lg transition-colors text-gray-300 hover:bg-gray-700 hover:text-white">Inicio / Cambiar Jugador</button>
+                <button onClick={() => setScreen('admin')} className="px-4 py-2 text-sm md:text-base rounded-lg transition-colors text-gray-300 hover:bg-gray-700 hover:text-white">Admin</button>
             </div>
         </nav>
-        <main className="container mx-auto p-4 md:p-6 flex-grow">
+        <main className="container mx-auto p-4 md:p-8 flex-grow">
             {renderScreen()}
         </main>
         <Footer />
