@@ -1,0 +1,42 @@
+¡Sí, ya está todo listo! Has hecho todos los pasos. Tu aplicación ahora mismo es 100% funcional para que tú y tus amigos juguéis online.
+
+Respondo a tus dos preguntas clave:
+
+¿Se conecta todo automáticamente cuando empieza la jornada?
+
+Esta es una aclaración muy importante: el proceso no es totalmente automático.
+
+Tu aplicación está conectada y funciona, pero no "sabe" por sí misma los resultados de los partidos de fútbol reales. Tú, como administrador, eres el que tiene el control.
+
+Así es como funciona:
+
+    Durante la semana, tus amigos entran y hacen su elección para la jornada.
+
+    Cuando terminan los partidos del fin de semana, tú tienes que entrar en la aplicación.
+
+    Vas a la pestaña "Admin".
+
+    En la sección "Introducir Resultados", seleccionas el ganador de cada partido (o si fue empate).
+
+    Una vez introducidos los resultados, pulsas el botón "Procesar Jornada".
+
+En ese momento, la aplicación elimina a los que han fallado. No es automático, ¡tú eres el director del juego!
+
+¿Y si quiero hacer más cambios en el futuro?
+
+Hacer cambios ahora es muy fácil, porque ya has hecho lo más difícil. El proceso es siempre el mismo:
+
+    Modificas el Código: Abres el archivo src/App.jsx en tu ordenador y haces el cambio que quieras (cambiar un color, añadir una regla, etc.).
+
+    Guardas y Subes los Cambios: Abres la terminal en la carpeta del proyecto y ejecutas los tres comandos que ya conoces:
+    Bash
+
+    git add .
+    ```bash
+    git commit -m "Un mensaje describiendo el cambio, ej: He cambiado el color del título"
+    ```bash
+    git push
+
+    Vercel Hace el Resto: Vercel detectará automáticamente que has subido cambios a GitHub y actualizará tu aplicación. En 2-3 minutos, los cambios estarán visibles para todos en el mismo enlace de siempre.
+
+¡Ya tienes el control total de tu propia aplicación!
