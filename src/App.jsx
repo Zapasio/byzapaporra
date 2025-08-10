@@ -75,44 +75,10 @@ const AuthScreen = ({ onShowModal }) => {
     const [name, setName] = useState('');
     const [resetEmail, setResetEmail] = useState('');
     const [showPasswordReset, setShowPasswordReset] = useState(false);
-    const [isProcessing, setIsProcessing] = useState(false); // Nuevo estado de carga
+    const [isProcessing, setIsProcessing] = useState(false);
 
-    const handleAuth = async (e) => {
-        e.preventDefault();
-        setIsProcessing(true); // Inicia la carga
-        try {
-            if (isLogin) {
-                await signInWithEmailAndPassword(auth, email, password);
-            } else {
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                await setDoc(doc(db, "players", userCredential.user.uid), {
-                    name: name,
-                    email: email,
-                    status: 'activo',
-                    picks: [],
-                    jornadaEliminado: null,
-                    role: 'player'
-                });
-            }
-        } catch (err) {
-            onShowModal("Error de Autenticación", err.message);
-        }
-        setIsProcessing(false); // Finaliza la carga
-    };
-    
-    const handlePasswordReset = async () => {
-        if (!resetEmail) { onShowModal("Error", "Por favor, introduce tu email."); return; }
-        setIsProcessing(true);
-        try {
-            await sendPasswordResetEmail(auth, resetEmail);
-            onShowModal("Correo Enviado", "Se ha enviado un enlace a tu email para recuperar tu contraseña.");
-            setShowPasswordReset(false);
-            setResetEmail('');
-        } catch (err) {
-            onShowModal("Error", err.message);
-        }
-        setIsProcessing(false);
-    };
+    const handleAuth = async (e) => { e.preventDefault(); setIsProcessing(true); try { if (isLogin) { await signInWithEmailAndPassword(auth, email, password); } else { const userCredential = await createUserWithEmailAndPassword(auth, email, password); await setDoc(doc(db, "players", userCredential.user.uid), { name: name, email: email, status: 'activo', picks: [], jornadaEliminado: null, role: 'player' }); } } catch (err) { onShowModal("Error de Autenticación", err.message); } finally { setIsProcessing(false); } };
+    const handlePasswordReset = async () => { if (!resetEmail) { onShowModal("Error", "Por favor, introduce tu email."); return; } setIsProcessing(true); try { await sendPasswordResetEmail(auth, resetEmail); onShowModal("Correo Enviado", "Se ha enviado un enlace a tu email para recuperar tu contraseña."); setShowPasswordReset(false); setResetEmail(''); } catch (err) { onShowModal("Error", err.message); } finally { setIsProcessing(false); } };
 
     if (showPasswordReset) { return ( <div className="text-center p-4 max-w-md mx-auto animate-fade-in flex flex-col items-center justify-center min-h-[70vh]"><div className="glass-effect rounded-xl p-8 w-full"><h3 className="text-2xl font-semibold text-white mb-4">Recuperar Contraseña</h3><p className="text-gray-400 mb-6">Introduce tu email y te enviaremos un enlace.</p><input type="email" placeholder="Tu email" value={resetEmail} onChange={(e) => setResetEmail(e.target.value)} className="w-full p-3 bg-gray-900/80 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-yellow-400 mb-4" /><button onClick={handlePasswordReset} disabled={isProcessing} className="w-full gold-gradient text-black font-bold py-3 px-8 rounded-full shadow-lg shadow-yellow-500/20 transform hover:scale-105 transition-all duration-300 disabled:opacity-50">{isProcessing ? 'Enviando...' : 'Enviar Correo'}</button><button onClick={() => setShowPasswordReset(false)} className="mt-4 text-gray-400 hover:text-white">Volver</button></div></div> ); }
     return ( <div className="text-center p-4 max-w-md mx-auto animate-fade-in flex flex-col items-center justify-center min-h-[70vh]"><h2 className="text-6xl font-black gold-gradient bg-clip-text text-transparent mb-4">{isLogin ? 'Bienvenido' : 'Únete a la Porra'}</h2><p className="text-gray-400 mb-8 text-lg">{isLogin ? 'Inicia sesión para continuar.' : 'Crea tu cuenta para empezar a jugar.'}</p><div className="glass-effect rounded-xl p-8 w-full"><form onSubmit={handleAuth} className="space-y-4">{!isLogin && (<input type="text" placeholder="Tu Nombre" value={name} onChange={(e) => setName(e.target.value)} required className="w-full p-3 bg-gray-900/80 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" />)}<input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required className="w-full p-3 bg-gray-900/80 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" /><input type="password" placeholder="Contraseña" value={password} onChange={(e) => setPassword(e.target.value)} required className="w-full p-3 bg-gray-900/80 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" /><button type="submit" disabled={isProcessing} className="w-full gold-gradient text-black font-bold py-3 px-8 rounded-full shadow-lg shadow-yellow-500/20 transform hover:scale-105 transition-all duration-300 disabled:opacity-50">{isProcessing ? 'Procesando...' : (isLogin ? 'Entrar' : 'Registrarse')}</button></form><button onClick={() => setIsLogin(!isLogin)} className="mt-6 text-yellow-400 hover:text-yellow-300">{isLogin ? '¿No tienes cuenta? Regístrate' : '¿Ya tienes cuenta? Inicia sesión'}</button>{isLogin && (<button onClick={() => setShowPasswordReset(true)} className="mt-2 text-sm text-gray-400 hover:text-white">¿Has olvidado tu contraseña?</button>)}</div></div> );
