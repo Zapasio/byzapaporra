@@ -1,4 +1,4 @@
-React, { useState, useMemimporto, useEffect } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 // Importamos TODO lo necesario de Firebase, incluyendo Autenticación
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection, doc, onSnapshot, setDoc, updateDoc, getDoc } from "firebase/firestore";
