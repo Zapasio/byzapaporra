@@ -1,13 +1,645 @@
 <!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>ByZaPa · Gizapas Porras 2025</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --bg:#070a12; --panel:#0d1321; --card:rgba(255,255,255,.04);
+      --line:rgba(255,255,255,.08); --text:#e8eef7; --muted:#9bb1cf;
+      --brand:#6ee7ff; --brand2:#a78bfa; --good:#10b981; --warn:#f59e0b; --bad:#ef4444;
+      --shadow:0 20px 50px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.04);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family:Inter,system-ui,sans-serif; color:var(--text);
+      background:
+        radial-gradient(1200px 800px at -10% -10%, rgba(110,231,255,.10), transparent),
+        radial-gradient(1000px 700px at 110% 0%, rgba(167,139,250,.10), transparent),
+        var(--bg);
+    }
+    header{
+      position:sticky; top:0; z-index:50;
+      backdrop-filter:saturate(130%) blur(8px);
+      background:linear-gradient(180deg, rgba(10,15,28,.75), rgba(10,15,28,.45));
+      border-bottom:1px solid var(--line);
+    }
+    .container{max-width:1200px; margin:0 auto; padding:14px 16px}
+    .brand{display:flex; align-items:center; gap:12px}
+    .logo{width:40px; height:40px; border-radius:12px; background:conic-gradient(from 180deg, var(--brand), var(--brand2)); box-shadow:var(--shadow); position:relative}
+    .logo:after{content:"ByZaPa"; position:absolute; inset:auto 0 -16px 0; text-align:center; font-size:10px; color:var(--muted); letter-spacing:.4px}
+    h1{margin:0; font-size:18px; letter-spacing:.3px}
+    .subtitle{color:var(--muted); font-size:12px}
+    .userbar{margin-left:auto; display:flex; align-items:center; gap:8px}
+    .btn{padding:9px 12px; border:1px solid var(--line); background:rgba(255,255,255,.04); color:var(--text); border-radius:10px; cursor:pointer; font-weight:600}
+    .btn:hover{background:rgba(255,255,255,.07)}
+    .btn.brand{border-color:transparent; background:linear-gradient(135deg, rgba(110,231,255,.25), rgba(167,139,250,.25))}
+    .avatar{width:28px; height:28px; border-radius:999px; background:#1f2937}
+
+    main .wrap{max-width:1200px; margin:20px auto; padding:0 16px; display:grid; gap:16px}
+    .cards{display:grid; grid-template-columns:repeat(2,1fr); gap:12px}
+    @media(min-width:840px){ .cards{grid-template-columns:repeat(4,1fr)} }
+    .card{background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01)); border:1px solid var(--line); border-radius:16px; padding:14px; box-shadow:var(--shadow)}
+    .card h3{margin:0 0 6px 0; font-size:12px; color:var(--muted)}
+    .big{font-size:26px; font-weight:800; letter-spacing:.2px}
+    .trend{font-size:12px; color:var(--muted)}
+
+    .grid{display:grid; gap:16px}
+    .panel{background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.00)); border:1px solid var(--line); border-radius:16px; padding:14px; box-shadow:var(--shadow)}
+    .panel h2{margin:0 0 10px 0; font-size:16px}
+    .actions{display:flex; gap:8px; flex-wrap:wrap}
+
+    nav.tabs{display:flex; gap:8px; flex-wrap:wrap; border-bottom:1px solid var(--line); padding-bottom:8px; margin-bottom:8px}
+    .tab{padding:8px 12px; border-radius:10px; border:1px solid var(--line); background:rgba(255,255,255,.03); cursor:pointer; font-weight:600; font-size:14px}
+    .tab.active{background:linear-gradient(135deg, rgba(110,231,255,.18), rgba(167,139,250,.18)); border-color:transparent}
+
+    table{width:100%; border-collapse:collapse}
+    th,td{padding:10px; border-bottom:1px solid var(--line); font-size:14px}
+    th{color:var(--muted); text-transform:uppercase; letter-spacing:.4px; font-size:12px}
+    tbody tr:hover{background:rgba(255,255,255,.03)}
+    .pill{padding:4px 8px; border-radius:999px; border:1px solid var(--line); font-size:12px; color:var(--muted)}
+    .hidden{display:none !important}
+
+    .modal{position:fixed; inset:0; display:none; place-items:center; background:rgba(0,0,0,.55)}
+    .modal.open{display:grid}
+    .box{width:min(560px,92vw); background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:16px; box-shadow:var(--shadow)}
+    .grid2{display:grid; gap:10px; grid-template-columns:1fr 1fr}
+    .grid2 .full{grid-column:1/-1}
+    label{font-size:12px; color:var(--muted); font-weight:600}
+    input,select{width:100%; padding:10px 12px; border-radius:10px; background:rgba(255,255,255,.03); border:1px solid var(--line); color:var(--text)}
+    footer{text-align:center; color:var(--muted); font-size:12px; padding:22px}
+    .note{color:var(--warn); font-size:12px}
+  </style>
+</head>
+<body>
+<header>
+  <div class="container" style="display:flex; align-items:center; gap:12px">
+    <div class="brand">
+      <div class="logo" aria-hidden="true"></div>
+      <div>
+        <h1>ByZaPa · Gizapas Porras 2025</h1>
+        <div class="subtitle">Panel viral 2025 · Roles · Tiempo real</div>
+      </div>
+    </div>
+    <div class="userbar">
+      <span id="who" class="subtitle">No has iniciado sesión</span>
+      <img id="avatar" class="avatar" alt=""/>
+      <button id="btn-login" class="btn brand">Entrar con Google</button>
+      <button id="btn-logout" class="btn hidden">Salir</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <!-- TABS -->
+    <nav class="tabs">
+      <button class="tab active" data-tab="dashboard">Dashboard</button>
+      <button class="tab" data-tab="picks">Apuestas</button>
+      <button class="tab" data-tab="players">Jugadores</button>
+      <button class="tab admin-only" data-tab="users">Usuarios</button>
+      <button class="tab admin-only" data-tab="config">Configuración</button>
+    </nav>
+
+    <!-- CARDS -->
+    <section class="cards">
+      <div class="card"><h3>Participantes</h3><div id="stat-users" class="big">—</div><div class="trend" id="stat-users-trend"></div></div>
+      <div class="card"><h3>Apuestas totales</h3><div id="stat-bets" class="big">—</div><div class="trend" id="stat-bets-trend"></div></div>
+      <div class="card"><h3>Última actualización</h3><div id="stat-updated" class="big">—</div><div class="trend">en vivo</div></div>
+      <div class="card"><h3>Jornada</h3><div id="stat-round" class="big">—</div><div class="trend" id="stat-round-note">configurable</div></div>
+    </section>
+
+    <!-- PANELS -->
+    <section id="dashboard" class="grid">
+      <div class="panel">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap">
+          <h2>Clasificación</h2>
+          <div class="actions">
+            <button class="btn" id="btn-refresh">Refrescar</button>
+            <button class="btn brand" id="btn-open-bet">Nueva apuesta</button>
+          </div>
+        </div>
+        <table>
+          <thead><tr><th>#</th><th>Usuario</th><th>Puntos</th><th>Aciertos</th><th>Racha</th></tr></thead>
+          <tbody id="standings-body"><tr><td colspan="5" style="text-align:center; padding:18px">Cargando…</td></tr></tbody>
+        </table>
+      </div>
+
+      <div class="panel">
+        <h2>Apuestas recientes</h2>
+        <table>
+          <thead><tr><th>Fecha</th><th>Usuario</th><th>Partido</th><th>Elección</th><th>Pts</th><th>OK</th><th class="admin-only">Acciones</th></tr></thead>
+        <tbody id="recent-body"><tr><td colspan="7" style="text-align:center; padding:18px">Cargando…</td></tr></tbody>
+        </table>
+        <div class="note">Los usuarios solo pueden editar/borrar sus propias apuestas. Los admin pueden gestionar todas.</div>
+      </div>
+    </section>
+
+    <section id="picks" class="panel hidden">
+      <h2>Mis apuestas</h2>
+      <div class="actions" style="margin-bottom:8px">
+        <button class="btn brand" id="btn-open-bet-2">Nueva apuesta</button>
+      </div>
+      <table>
+        <thead><tr><th>Fecha</th><th>Partido</th><th>Elección</th><th>Pts</th><th>OK</th><th>Acciones</th></tr></thead>
+        <tbody id="my-bets"><tr><td colspan="6" style="text-align:center; padding:18px">Cargando…</td></tr></tbody>
+      </table>
+    </section>
+
+    <section id="players" class="panel hidden">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap">
+        <h2>Jugadores</h2>
+        <div class="actions">
+          <button class="btn brand" id="btn-open-player">Añadir jugador</button>
+        </div>
+      </div>
+      <table>
+        <thead><tr><th>Nombre</th><th>Posición</th><th>Equipo</th><th>Acciones</th></tr></thead>
+        <tbody id="players-body"><tr><td colspan="4" style="text-align:center; padding:18px">Cargando…</td></tr></tbody>
+      </table>
+    </section>
+
+    <section id="users" class="panel hidden">
+      <h2>Usuarios (solo admin)</h2>
+      <table>
+        <thead><tr><th>UID</th><th>Nombre</th><th>Email</th><th>Rol</th><th>Acciones</th></tr></thead>
+        <tbody id="users-body"><tr><td colspan="5" style="text-align:center; padding:18px">Cargando…</td></tr></tbody>
+      </table>
+    </section>
+
+    <section id="config" class="panel hidden">
+      <h2>Configuración (solo admin)</h2>
+      <div class="grid2">
+        <div class="full">
+          <label>Jornada actual</label>
+          <input id="f-round" placeholder="p.ej. Jornada 1"/>
+        </div>
+        <div class="full" style="display:flex; gap:8px; justify-content:flex-end">
+          <button class="btn" id="btn-cancel-round">Cancelar</button>
+          <button class="btn brand" id="btn-save-round">Guardar</button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<footer>© <span id="year"></span> ByZaPa — Viral Sports Panel 2025</footer>
+
+<!-- MODALES -->
+<div class="modal" id="modal-bet">
+  <div class="box">
+    <h2 style="margin:0 0 10px 0">Registrar/Editar apuesta</h2>
+    <form id="bet-form" class="grid2">
+      <div>
+        <label>Partido</label>
+        <input id="bet-match" required placeholder="RMA vs BAR"/>
+      </div>
+      <div>
+        <label>Elección</label>
+        <select id="bet-choice" required>
+          <option value="Local">Local</option>
+          <option value="Empate">Empate</option>
+          <option value="Visitante">Visitante</option>
+        </select>
+      </div>
+      <div>
+        <label>Puntos</label>
+        <input id="bet-points" type="number" min="0" step="1" value="0"/>
+      </div>
+      <div>
+        <label>¿Acertada?</label>
+        <select id="bet-correct">
+          <option value="false">No</option>
+          <option value="true">Sí</option>
+        </select>
+      </div>
+      <input type="hidden" id="bet-id"/>
+      <div class="full" style="display:flex; gap:8px; justify-content:flex-end; margin-top:6px">
+        <button type="button" class="btn" id="bet-cancel">Cancelar</button>
+        <button class="btn brand" type="submit">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal" id="modal-player">
+  <div class="box">
+    <h2 style="margin:0 0 10px 0">Añadir jugador</h2>
+    <form id="player-form" class="grid2">
+      <div class="full">
+        <label>Nombre</label>
+        <input id="pl-name" required placeholder="Ej: Carlos Pérez"/>
+      </div>
+      <div>
+        <label>Posición</label>
+        <input id="pl-pos" placeholder="DEL / MED / DEF / POR"/>
+      </div>
+      <div>
+        <label>Equipo</label>
+        <input id="pl-team" placeholder="Ej: ByZaPa FC"/>
+      </div>
+      <div class="full" style="display:flex; gap:8px; justify-content:flex-end; margin-top:6px">
+        <button type="button" class="btn" id="player-cancel">Cancelar</button>
+        <button class="btn brand" type="submit">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+</script>
+
+<!-- Firebase & App -->
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut, updateProfile } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+  import {
+    getFirestore, collection, addDoc, setDoc, getDoc, doc, serverTimestamp,
+    onSnapshot, query, orderBy, limit, where, updateDoc, deleteDoc
+  } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+  // ===== 1) CONFIGURA AQUÍ TU FIREBASE =====
+const firebaseConfig = {
+  apiKey: "AIzaSyDQLH-kZTXnDJFRdG4Xewzx4_FDVh49gWU",
+  authDomain: "porra-zapa-final.firebaseapp.com",
+  projectId: "porra-zapa-final",
+  storageBucket: "porra-zapa-final.appspot.com",
+  messagingSenderId: "1024288035075",
+  appId: "1:1024288035075:web:12e4ffe425a878ac931936"
+};
+
+
+  // Validación básica
+  for (const k of ['apiKey','authDomain','projectId','appId']) {
+    if (!firebaseConfig[k] || String(firebaseConfig[k]).startsWith('TU_')) {
+      alert('⚠️ Config incompleta. Edita el index.html y pega tu firebaseConfig real.');
+      throw new Error('Config Firebase incompleta');
+    }
+  }
+
+  // ===== 2) INIT =====
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const provider = new GoogleAuthProvider();
+
+  // ===== 3) UI REFS =====
+  const who = document.getElementById('who');
+  const avatar = document.getElementById('avatar');
+  const loginBtn = document.getElementById('btn-login');
+  const logoutBtn = document.getElementById('btn-logout');
+
+  const tabs = document.querySelectorAll('.tab');
+  const sections = ['dashboard','picks','players','users','config'].map(id => document.getElementById(id));
+
+  const statUsers = document.getElementById('stat-users');
+  const statBets = document.getElementById('stat-bets');
+  const statUpdated = document.getElementById('stat-updated');
+  const statRound = document.getElementById('stat-round');
+
+  const standingsBody = document.getElementById('standings-body');
+  const recentBody = document.getElementById('recent-body');
+  const myBetsBody = document.getElementById('my-bets');
+  const playersBody = document.getElementById('players-body');
+  const usersBody = document.getElementById('users-body');
+
+  const btnOpenBet = document.getElementById('btn-open-bet');
+  const btnOpenBet2 = document.getElementById('btn-open-bet-2');
+  const btnRefresh = document.getElementById('btn-refresh');
+
+  const modalBet = document.getElementById('modal-bet');
+  const betCancel = document.getElementById('bet-cancel');
+  const betForm = document.getElementById('bet-form');
+  const fMatch = document.getElementById('bet-match');
+  const fChoice = document.getElementById('bet-choice');
+  const fPoints = document.getElementById('bet-points');
+  const fCorrect = document.getElementById('bet-correct');
+  const fBetId = document.getElementById('bet-id');
+
+  const modalPlayer = document.getElementById('modal-player');
+  const playerCancel = document.getElementById('player-cancel');
+  const playerForm = document.getElementById('player-form');
+  const fPlName = document.getElementById('pl-name');
+  const fPlPos = document.getElementById('pl-pos');
+  const fPlTeam = document.getElementById('pl-team');
+
+  const fRound = document.getElementById('f-round');
+  const btnSaveRound = document.getElementById('btn-save-round');
+  const btnCancelRound = document.getElementById('btn-cancel-round');
+
+  // ===== 4) NAV =====
+  function switchTab(id){
+    tabs.forEach(t => t.classList.toggle('active', t.getAttribute('data-tab') === id));
+    sections.forEach(s => s.classList.toggle('hidden', s.id !== id));
+  }
+  tabs.forEach(t => t.addEventListener('click', () => switchTab(t.getAttribute('data-tab')) ));
+
+  // ===== 5) AUTH =====
+  loginBtn.addEventListener('click', async ()=>{
+    try{
+      const res = await signInWithPopup(auth, provider);
+      const user = res.user;
+      const uref = doc(db, 'users', user.uid);
+      const snap = await getDoc(uref);
+      if(!snap.exists()){
+        await setDoc(uref, {
+          uid: user.uid,
+          email: user.email || null,
+          displayName: user.displayName || 'Usuario',
+          role: 'user',
+          createdAt: serverTimestamp(),
+          lastLogin: serverTimestamp()
+        });
+      } else {
+        await updateDoc(uref, { lastLogin: serverTimestamp() });
+      }
+    }catch(e){
+      alert('Error al iniciar sesión: ' + (e?.message || e));
+    }
+  });
+
+  logoutBtn.addEventListener('click', ()=> signOut(auth));
+
+  let unsubPicks=null, unsubMyPicks=null, unsubPlayers=null, unsubUsers=null, unsubSettings=null;
+  let currentUser=null, currentRole='user';
+
+  onAuthStateChanged(auth, async (user)=>{
+    currentUser = user || null;
+
+    if(!user){
+      who.textContent = 'No has iniciado sesión';
+      avatar.src = '';
+      loginBtn.classList.remove('hidden');
+      logoutBtn.classList.add('hidden');
+      document.querySelectorAll('.admin-only').forEach(el=> el.classList.add('hidden'));
+      // limpiar listeners
+      [unsubPicks,unsubMyPicks,unsubPlayers,unsubUsers,unsubSettings].forEach(f=> f && f());
+      renderEmpty();
+      return;
+    }
+
+    who.textContent = user.displayName || user.email || user.uid;
+    if(user.photoURL) avatar.src = user.photoURL;
+    loginBtn.classList.add('hidden');
+    logoutBtn.classList.remove('hidden');
+
+    // Leer rol
+    try{
+      const snap = await getDoc(doc(db, 'users', user.uid));
+      currentRole = (snap.exists() && snap.data().role) ? snap.data().role : 'user';
+    }catch{ currentRole = 'user'; }
+
+    // Mostrar opciones admin
+    const isAdmin = currentRole === 'admin';
+    document.querySelectorAll('.admin-only').forEach(el=> el.classList.toggle('hidden', !isAdmin));
+
+    // Suscripciones en vivo
+    subscribeSettings();
+    subscribeRecentPicks();
+    subscribeStandings();
+    subscribeMyPicks();
+    subscribePlayers();
+    if(isAdmin) subscribeUsers();
+  });
+
+  function renderEmpty(){
+    statUsers.textContent='—'; statBets.textContent='—'; statUpdated.textContent='—'; statRound.textContent='—';
+    standingsBody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:18px">Sin datos</td></tr>`;
+    recentBody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:18px">Sin datos</td></tr>`;
+    myBetsBody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:18px">Inicia sesión para ver tus apuestas</td></tr>`;
+    playersBody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:18px">Sin datos</td></tr>`;
+    usersBody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:18px">Solo admin</td></tr>`;
+  }
+
+  // ===== 6) SETTINGS (jornada) =====
+  function subscribeSettings(){
+    if(unsubSettings) unsubSettings();
+    unsubSettings = onSnapshot(doc(db,'settings','app'), (d)=>{
+      statRound.textContent = d.exists() ? (d.data().currentRound || '—') : '—';
+    });
+  }
+  btnSaveRound.addEventListener('click', async ()=>{
+    if(currentRole!=='admin'){ alert('No eres admin'); return; }
+    await setDoc(doc(db,'settings','app'), { currentRound: fRound.value.trim() || '—', updatedAt: serverTimestamp() }, { merge:true });
+    fRound.value = '';
+  });
+  btnCancelRound.addEventListener('click', ()=> fRound.value='');
+
+  // ===== 7) APUESTAS =====
+  function subscribeRecentPicks(){
+    if(unsubPicks) unsubPicks();
+    const q = query(collection(db,'picks'), orderBy('createdAt','desc'), limit(50));
+    unsubPicks = onSnapshot(q, (snap)=>{
+      const rows=[];
+      const standings=new Map();
+      let total=0;
+      snap.forEach(docu=>{
+        const d = docu.data()||{}; total++;
+        const when = d.createdAt?.toDate ? d.createdAt.toDate() : (d.createdAt? new Date(d.createdAt): null);
+        const ok = d.correct===true;
+        rows.push(`<tr>
+          <td>${when? when.toLocaleString(): '—'}</td>
+          <td>${esc(d.displayName||d.email||'—')}</td>
+          <td>${esc(d.match||'—')}</td>
+          <td><span class="pill">${esc(d.choice||'—')}</span></td>
+          <td>${Number(d.points||0)}</td>
+          <td>${ok?'✔️':'—'}</td>
+          <td class="${currentRole==='admin'?'':'hidden'}">
+            <button class="btn" data-edit="${docu.id}">Editar</button>
+            <button class="btn" data-del="${docu.id}">Borrar</button>
+          </td>
+        </tr>`);
+
+        const key=(d.displayName||d.email||'—').trim();
+        if(!standings.has(key)) standings.set(key,{points:0,hits:0,streak:0,last:false});
+        const s=standings.get(key);
+        s.points += Number(d.points||0);
+        if(ok){ s.hits++; s.streak = s.last? (s.streak+1):1; s.last = true; } else { s.last=false; s.streak=0; }
+      });
+      recentBody.innerHTML = rows.length? rows.join('') : `<tr><td colspan="7" style="text-align:center; padding:18px">Sin apuestas</td></tr>`;
+      statBets.textContent = total;
+      statUpdated.textContent = new Date().toLocaleTimeString();
+
+      // eventos admin (delegación)
+      recentBody.querySelectorAll('[data-edit]').forEach(b=> b.onclick = ()=> openEditBet(b.getAttribute('data-edit')));
+      recentBody.querySelectorAll('[data-del]').forEach(b=> b.onclick = ()=> delBet(b.getAttribute('data-del')));
+
+      // standings
+      const table=[...standings.entries()].sort((a,b)=>{
+        const A=a[1], B=b[1];
+        if(B.points!==A.points) return B.points-A.points;
+        if(B.hits!==A.hits) return B.hits-A.hits;
+        return (B.streak||0)-(A.streak||0);
+      });
+      standingsBody.innerHTML = table.length? table.map((e,i)=>`
+        <tr><td>${i+1}</td><td>${esc(e[0])}</td><td><strong>${e[1].points}</strong></td><td>${e[1].hits}</td><td>${e[1].streak}</td></tr>
+      `).join('') : `<tr><td colspan="5" style="text-align:center; padding:18px">Sin datos</td></tr>`;
+
+      statUsers.textContent = standings.size;
+    });
+  }
+
+  function subscribeMyPicks(){
+    if(!currentUser) return;
+    if(unsubMyPicks) unsubMyPicks();
+    const q = query(collection(db,'picks'), where('uid','==', currentUser.uid), orderBy('createdAt','desc'), limit(50));
+    unsubMyPicks = onSnapshot(q, (snap)=>{
+      const rows=[];
+      snap.forEach(docu=>{
+        const d=docu.data()||{};
+        const when = d.createdAt?.toDate ? d.createdAt.toDate() : (d.createdAt? new Date(d.createdAt): null);
+        rows.push(`<tr>
+          <td>${when? when.toLocaleString(): '—'}</td>
+          <td>${esc(d.match||'—')}</td>
+          <td><span class="pill">${esc(d.choice||'—')}</span></td>
+          <td>${Number(d.points||0)}</td>
+          <td>${d.correct===true?'✔️':'—'}</td>
+          <td>
+            <button class="btn" data-edit="${docu.id}">Editar</button>
+            <button class="btn" data-del="${docu.id}">Borrar</button>
+          </td>
+        </tr>`);
+      });
+      myBetsBody.innerHTML = rows.length? rows.join('') : `<tr><td colspan="6" style="text-align:center; padding:18px">Aún no tienes apuestas</td></tr>`;
+      myBetsBody.querySelectorAll('[data-edit]').forEach(b=> b.onclick = ()=> openEditBet(b.getAttribute('data-edit')));
+      myBetsBody.querySelectorAll('[data-del]').forEach(b=> b.onclick = ()=> delBet(b.getAttribute('data-del')));
+    });
+  }
+
+  async function openEditBet(id){
+    const snap = await getDoc(doc(db,'picks',id));
+    if(!snap.exists()){ alert('No existe'); return; }
+    const d = snap.data();
+    // permiso: admin o dueño
+    if(currentRole!=='admin' && d.uid!==currentUser?.uid){ alert('Sin permiso'); return; }
+    fBetId.value = id;
+    fMatch.value = d.match||'';
+    fChoice.value = d.choice||'Local';
+    fPoints.value = Number(d.points||0);
+    fCorrect.value = d.correct===true ? 'true':'false';
+    modalBet.classList.add('open');
+  }
+
+  async function delBet(id){
+    const snap = await getDoc(doc(db,'picks',id));
+    if(!snap.exists()) return;
+    const d=snap.data();
+    if(currentRole!=='admin' && d.uid!==currentUser?.uid){ alert('Sin permiso'); return; }
+    if(!confirm('¿Borrar apuesta?')) return;
+    await deleteDoc(doc(db,'picks',id));
+  }
+
+  // crear / editar
+  function openNewBet(){ fBetId.value=''; fMatch.value=''; fChoice.value='Local'; fPoints.value='0'; fCorrect.value='false'; modalBet.classList.add('open'); }
+  btnOpenBet.onclick = openNewBet;
+  btnOpenBet2 && (btnOpenBet2.onclick = openNewBet);
+  betCancel.onclick = ()=> modalBet.classList.remove('open');
+
+  betForm.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    if(!currentUser){ alert('Inicia sesión'); return; }
+    const data = {
+      uid: currentUser.uid,
+      email: currentUser.email||null,
+      displayName: currentUser.displayName||null,
+      match: fMatch.value.trim(),
+      choice: fChoice.value,
+      points: Number(fPoints.value||0),
+      correct: fCorrect.value==='true',
+      createdAt: serverTimestamp()
+    };
+    const id = fBetId.value;
+    if(id){
+      // editar: mantener createdAt anterior
+      const ref = doc(db,'picks',id);
+      const old = await getDoc(ref);
+      if(!old.exists()){ alert('No existe'); return; }
+      const d=old.data();
+      if(currentRole!=='admin' && d.uid!==currentUser.uid){ alert('Sin permiso'); return; }
+      await updateDoc(ref, {
+        match:data.match, choice:data.choice, points:data.points, correct:data.correct
+      });
+    }else{
+      await addDoc(collection(db,'picks'), data);
+    }
+    modalBet.classList.remove('open');
+  });
+
+  btnRefresh.onclick = ()=> window.location.reload();
+
+  // ===== 8) JUGADORES =====
+  function subscribePlayers(){
+    if(unsubPlayers) unsubPlayers();
+    const q = query(collection(db,'players'), orderBy('name','asc'), limit(200));
+    unsubPlayers = onSnapshot(q, (snap)=>{
+      const rows=[];
+      snap.forEach(docu=>{
+        const d = docu.data()||{};
+        rows.push(`<tr>
+          <td>${esc(d.name||'—')}</td>
+          <td>${esc(d.position||'—')}</td>
+          <td>${esc(d.team||'—')}</td>
+          <td>
+            <button class="btn" data-delp="${docu.id}">Borrar</button>
+          </td>
+        </tr>`);
+      });
+      playersBody.innerHTML = rows.length? rows.join('') : `<tr><td colspan="4" style="text-align:center; padding:18px">Sin jugadores</td></tr>`;
+      playersBody.querySelectorAll('[data-delp]').forEach(b=> b.onclick = ()=> delPlayer(b.getAttribute('data-delp')));
+    });
+  }
+  document.getElementById('btn-open-player').onclick = ()=> modalPlayer.classList.add('open');
+  playerCancel.onclick = ()=> modalPlayer.classList.remove('open');
+  playerForm.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const data={ name:fPlName.value.trim(), position:fPlPos.value.trim(), team:fPlTeam.value.trim(), createdAt:serverTimestamp() };
+    if(!data.name){ alert('Nombre requerido'); return; }
+    await addDoc(collection(db,'players'), data);
+    modalPlayer.classList.remove('open'); playerForm.reset();
+  });
+  async function delPlayer(id){
+    if(currentRole!=='admin'){ alert('Solo admin'); return; }
+    if(!confirm('¿Borrar jugador?')) return;
+    await deleteDoc(doc(db,'players',id));
+  }
+
+  // ===== 9) USUARIOS (ADMIN) =====
+  function subscribeUsers(){
+    if(unsubUsers) unsubUsers();
+    const q = query(collection(db,'users'), orderBy('createdAt','desc'), limit(200));
+    unsubUsers = onSnapshot(q, (snap)=>{
+      const rows=[];
+      snap.forEach(docu=>{
+        const d=docu.data()||{};
+        rows.push(`<tr>
+          <td>${docu.id}</td>
+          <td>${esc(d.displayName||'—')}</td>
+          <td>${esc(d.email||'—')}</td>
+          <td><span class="pill">${esc(d.role||'user')}</span></td>
+          <td>
+            <button class="btn" data-make="admin" data-id="${docu.id}">Hacer admin</button>
+            <button class="btn" data-make="user" data-id="${docu.id}">Hacer user</button>
+          </td>
+        </tr>`);
+      });
+      usersBody.innerHTML = rows.length? rows.join('') : `<tr><td colspan="5" style="text-align:center; padding:18px">Sin usuarios</td></tr>`;
+      usersBody.querySelectorAll('[data-make]').forEach(b=> b.onclick = ()=> setRole(b.getAttribute('data-id'), b.getAttribute('data-make')));
+    });
+  }
+  async function setRole(uid,role){
+    if(currentRole!=='admin'){ alert('Solo admin'); return; }
+    await updateDoc(doc(db,'users',uid), { role });
+  }
+
+  // ===== helpers =====
+  function esc(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+</script>
+</body>
 </html>
